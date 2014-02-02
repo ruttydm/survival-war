@@ -3,7 +3,7 @@ $host = 'localhost';
 $database ='';
 $user =''; 
 $password ='';
-$version = '0,2 Alpha';
+$version = '1';
 	
 parse_str("$QUERY_STRING");
 
