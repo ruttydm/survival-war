@@ -1,0 +1,110 @@
+CREATE TABLE km_admins (
+  ID int(11) NOT NULL auto_increment,
+  username varchar(255) NOT NULL default '',
+  `password` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (ID)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `km_battlerecords`
+-- 
+
+CREATE TABLE km_battlerecords (
+  ID bigint(20) NOT NULL auto_increment,
+  attid bigint(20) NOT NULL default '0',
+  attname varchar(255) NOT NULL default '',
+  result tinytext NOT NULL,
+  landlost bigint(20) NOT NULL default '0',
+  victimid bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (ID)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `km_forums`
+-- 
+
+CREATE TABLE km_forums (
+  forumID bigint(20) NOT NULL auto_increment,
+  forumname varchar(255) NOT NULL default '',
+  timelastpost varchar(255) NOT NULL default '',
+  lastposter varchar(255) NOT NULL default '',
+  numtopics bigint(20) NOT NULL default '0',
+  numposts bigint(20) NOT NULL default '0',
+  descrip tinytext NOT NULL,
+  forumorder int(11) NOT NULL default '0',
+  realtimelastpost bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (forumID)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `km_messages`
+-- 
+
+CREATE TABLE km_messages (
+  msgid bigint(20) NOT NULL auto_increment,
+  posterid bigint(20) NOT NULL default '0',
+  parentid bigint(20) NOT NULL default '0',
+  `time` bigint(20) NOT NULL default '0',
+  numreplies bigint(20) NOT NULL default '0',
+  realtime varchar(255) NOT NULL default '',
+  `subject` tinytext NOT NULL,
+  message mediumtext NOT NULL,
+  lastreplied varchar(255) NOT NULL default '',
+  forumparent bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (msgid)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `km_monsters`
+-- 
+
+CREATE TABLE km_monsters (
+  ID bigint(20) NOT NULL auto_increment,
+  name varchar(255) NOT NULL default '',
+  skill bigint(20) NOT NULL default '0',
+  pointsifkilled bigint(255) NOT NULL default '0',
+  goldworth bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (ID)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `km_users`
+-- 
+
+CREATE TABLE km_users (
+  ID bigint(21) NOT NULL auto_increment,
+  `status` int(11) NOT NULL default '0',
+  playername varchar(15) NOT NULL default '',
+  `password` varchar(255) NOT NULL default '',
+  email varchar(255) NOT NULL default '',
+  skillpts bigint(21) NOT NULL default '0',
+  dead varchar(255) NOT NULL default '',
+  killer varchar(255) NOT NULL default '',
+  numberattck bigint(20) NOT NULL default '0',
+  justattacked int(4) NOT NULL default '0',
+  honor int(11) NOT NULL default '0',
+  lastaction bigint(20) NOT NULL default '0',
+  gold bigint(20) NOT NULL default '0',
+  land bigint(20) NOT NULL default '0',
+  offarmy bigint(20) NOT NULL default '0',
+  dffarmy bigint(6) NOT NULL default '0',
+  science bigint(20) NOT NULL default '0',
+  validated int(11) NOT NULL default '0',
+  validkey varchar(255) NOT NULL default '',
+  numturns bigint(20) NOT NULL default '0',
+  tsgone bigint(20) NOT NULL default '0',
+  oldtime bigint(20) NOT NULL default '0',
+  lasttime bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (ID)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+        

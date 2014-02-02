@@ -1,0 +1,86 @@
+
+
+body {
+padding: 0;
+margin: 0;
+font-family: helvetica;
+background: url("thumb_3.jpg");
+}
+a {
+color: #032B0B;
+}
+header {
+text-align: center;
+border: solid;
+margin-bottom: 3px;
+border-radius: 50px;
+margin: 3px;
+background: url("apocalypse-17.jpg");
+}
+.headtext{
+
+}
+.content {
+padding: 1%;
+margin-left: 15%;
+margin: 1%;
+background: url("paper_texture266.jpg");
+border: solid;
+border-radius: 20px;
+font-family: verdana;
+font-size: 110%;
+float: right; 
+width: 80%;
+}
+.menu {
+width: 10%;	
+border: solid;
+padding: 1%;
+margin: 1%;
+background: #E09C43;
+font-weight: 900;
+float: left;
+}
+.menu ul {
+list-style-type:none;
+margin:0;
+padding:0;
+ }
+ 
+.maintable {
+border-radius: 10px;
+border: 1px #000000 solid; 
+background-color: #efefef; 
+width: 80%; 
+padding: 0px;
+font-size: 12px;   
+margin-left: auto;
+margin-right: auto;
+} 
+
+.regrow {
+color: #000000; 
+font-weight: bold; 
+background-color: #FFFFFF;
+} 
+.headline {
+border-radius: 10px;	
+font-weight: bold;
+color: #FFFFFF;
+background-color: #000000;
+font-size: 11px
+} 
+
+.mainrow {
+color: #000000;
+background-color: #F2F2F2;
+font-size: 14px
+} 
+
+.maintables {
+border: 1px #003366 solid; 
+background-color: #FFFFFF; 
+width: 120px; 
+padding: 0px;
+font-size: 12px;
+} 

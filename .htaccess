@@ -1,0 +1,5 @@
+<Files "cronjob.php">
+  Order deny,allow
+  Allow from xxx.xxx.xxx.xxx
+  Deny from all
+</Files>
