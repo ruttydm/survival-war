@@ -1,9 +1,9 @@
 You many not remove the copyright notice at the bottom of the game to chipmunk scripts if you use any part of this script.
 
-To install Killmonster 2.2:
+To install survival war:
 
 Needed:
-PHP 4.3 or greater
+PHP 5 or greater
 MYSQL 3 or greater
 Ability to set cron jobs
 
@@ -13,7 +13,7 @@ Upload all files
 Run admin/register.php and register yourself an admin name, then delete admin/register.php and admin/reguser.php
 
 You can log into your admin account at admin/login.php
-On the regular reguser.php(the one not in the admin folder you need to change the "path/to/killmonster" to the path on your server where you put killmonster.
+On the regular reguser.php(the one not in the admin folder you need to change the path to the path on your server where you put this game.
 
 You will need to set a cron on the file in the cron folder to run every hour. This will make
 
