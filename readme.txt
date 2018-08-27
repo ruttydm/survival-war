@@ -1,6 +1,5 @@
 You many not remove the copyright notice at the bottom of the game to chipmunk scripts if you use any part of this script.
-edit: you may remove the copright if you help at this project email:-) rutger.demaeyer@gmail.com
-To install survival war:
+edit: you may remove the copright if you help at this project email:-) 
 
 Needed:
 PHP 5 or greater
