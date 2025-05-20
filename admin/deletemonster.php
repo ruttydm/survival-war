@@ -3,7 +3,7 @@
 include "connect.php";
 session_start();
 ?>
-<?
+<?php
 if (isset($_SESSION['isadmin'])) //if there is an administrative session
   {
     $ID=$_GET['ID'];

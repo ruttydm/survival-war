@@ -5,7 +5,7 @@ session_start();
 include 'up_html.php';
 ?>
 
-<?
+<?php
 if (isset($_SESSION['player'])) 
 {
       print "<table class='maintable'>";
