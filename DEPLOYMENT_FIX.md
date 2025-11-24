@@ -13,14 +13,18 @@
 ## Issue 3: MySQL SSL Error (Current Blocker)
 **Symptoms**: `migrate.sh` stuck in loop, app never starts.
 **Error**: `ERROR 2026 (HY000): TLS/SSL error: self-signed certificate in certificate chain`
-**Cause**: MySQL 9.2 enables SSL by default with self-signed certs. The MySQL client in the app container rejects this.
-**Fix**: Updated `migrate.sh` to use `--ssl-mode=DISABLED`.
+**Cause**: MySQL 9.2 enables SSL by default. The client (likely MariaDB-based) needs explicit flags to ignore this.
+**Fix**: Updated `migrate.sh` to use `--skip-ssl` (more compatible than `--ssl-mode=DISABLED`).
 
 ## How to Deploy Now
 
 1. **Push changes** to Git.
-2. **Redeploy** in Coolify.
-3. **Verify**:
+2. **Configure Coolify UI**:
+   - **Domains**: Set to `https://survival.gingermedia.biz:8080`
+     - *This tells Coolify to route traffic for this domain to port 8080 inside the container.*
+   - **Ports Exposes**: You can leave this blank if you set the port in the domain field.
+3. **Redeploy**.
+4. **Verify**:
    - `migrate.sh` should now connect successfully.
    - App should start.
    - Site should be accessible.
