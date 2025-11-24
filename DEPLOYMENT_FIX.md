@@ -7,29 +7,22 @@
 
 ## Issue 2: "No available server" (Port Mismatch)
 **Symptoms**: Container runs but Coolify shows "No available server".
-**Cause**: 
-- `serversideup/php` image listens on **port 8080** (unprivileged default).
-- Our config assumed **port 80**.
-- Healthcheck failed (`curl localhost/login.php` -> connection refused).
-- Traefik couldn't route traffic because it looks for exposed ports.
+**Cause**: `serversideup/php` listens on port 8080, config assumed 80.
+**Fix**: Updated Dockerfile/Compose to use port 8080.
 
-**Fix**:
-- Updated `Dockerfile` to `EXPOSE 8080`.
-- Updated Healthchecks to check `http://localhost:8080/login.php`.
-- Updated local dev ports to `8080:8080`.
-
-## Issue 3: MySQL Healthcheck
-**Symptoms**: MySQL container unhealthy.
-**Cause**: Empty password handling.
-**Fix**: Updated healthcheck command and set default password.
+## Issue 3: MySQL SSL Error (Current Blocker)
+**Symptoms**: `migrate.sh` stuck in loop, app never starts.
+**Error**: `ERROR 2026 (HY000): TLS/SSL error: self-signed certificate in certificate chain`
+**Cause**: MySQL 9.2 enables SSL by default with self-signed certs. The MySQL client in the app container rejects this.
+**Fix**: Updated `migrate.sh` to use `--ssl-mode=DISABLED`.
 
 ## How to Deploy Now
 
 1. **Push changes** to Git.
 2. **Redeploy** in Coolify.
 3. **Verify**:
-   - App should be healthy (Healthcheck passing on port 8080).
-   - Coolify should detect port 8080 automatically.
+   - `migrate.sh` should now connect successfully.
+   - App should start.
    - Site should be accessible.
 
 ## Local Development
