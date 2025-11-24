@@ -3,15 +3,19 @@ FROM serversideup/php:8.5-fpm-nginx AS base
 # Set working directory
 WORKDIR /var/www/html
 
-# Install cron and curl for health checks
+# Install cron, curl for health checks, and mysql-client for migrations
 USER root
 RUN apt-get update && \
-    apt-get install -y cron curl && \
+    apt-get install -y cron curl default-mysql-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy application files
 COPY --chown=www-data:www-data . /var/www/html
+
+# Copy and make migration script executable
+COPY migrate.sh /usr/local/bin/migrate.sh
+RUN chmod +x /usr/local/bin/migrate.sh
 
 # Create logs directory with proper permissions
 RUN mkdir -p /var/www/html/logs && \
@@ -31,9 +35,14 @@ COPY crontab /etc/cron.d/survival-war
 RUN chmod 0644 /etc/cron.d/survival-war && \
     crontab /etc/cron.d/survival-war
 
-# Create entrypoint script to start cron and the main process
+# Create entrypoint script to run migrations, start cron and the main process
 RUN echo '#!/bin/bash' > /usr/local/bin/docker-entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo '' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo '# Run database migrations' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'if [ -f /usr/local/bin/migrate.sh ]; then' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo '  /usr/local/bin/migrate.sh' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'fi' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '' >> /usr/local/bin/docker-entrypoint.sh && \
     echo '# Start cron in the background' >> /usr/local/bin/docker-entrypoint.sh && \
     echo 'cron' >> /usr/local/bin/docker-entrypoint.sh && \
