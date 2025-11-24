@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: survival-war-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      # PHP Configuration
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_OPCACHE_REVALIDATE_FREQ: "0"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "0"
+      PHP_OPCACHE_MAX_ACCELERATED_FILES: "10000"
+      PHP_OPCACHE_MEMORY_CONSUMPTION: "192"
+      PHP_OPCACHE_MAX_WASTED_PERCENTAGE: "10"
+
+      # Database Configuration
+      DB_HOST: mysql
+      DB_NAME: survival_war
+      DB_USER: root
+      DB_PASS: ${DB_PASSWORD:-cdcdcd10}
+
+      # Site Configuration
+      SITE_URL: ${SITE_URL:-http://localhost:8080}
+      SITE_NAME: "Survival War"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+
+      # Security
+      SESSION_LIFETIME: "7200"
+      PASSWORD_MIN_LENGTH: "8"
+
+      # Development/Production Settings
+      DEBUG_MODE: ${DEBUG_MODE:-false}
+      DISPLAY_ERRORS: ${DISPLAY_ERRORS:-false}
+      LOG_ERRORS: "true"
+    volumes:
+      - ./logs:/var/www/html/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - survival-war-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost/login.php" ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  mysql:
+    image: mysql:9.2
+    container_name: survival-war-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-cdcdcd10}
+      MYSQL_DATABASE: survival_war
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./migrations/001_modernization_schema.sql:/docker-entrypoint-initdb.d/02-migration.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - survival-war-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-cdcdcd10}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  survival-war-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

@@ -12,23 +12,23 @@ ALTER TABLE km_admins MODIFY password VARCHAR(255) NOT NULL;
 
 -- Add indices for improved query performance
 -- These fields are frequently used in WHERE clauses
-CREATE INDEX IF NOT EXISTS idx_playername ON km_users(playername);
-CREATE INDEX IF NOT EXISTS idx_email ON km_users(email);
-CREATE INDEX IF NOT EXISTS idx_validated ON km_users(validated);
-CREATE INDEX IF NOT EXISTS idx_dead ON km_users(dead);
-CREATE INDEX IF NOT EXISTS idx_lastaction ON km_users(lastaction);
-CREATE INDEX IF NOT EXISTS idx_land ON km_users(land);
-CREATE INDEX IF NOT EXISTS idx_honor ON km_users(honor);
-CREATE INDEX IF NOT EXISTS idx_skillpts ON km_users(skillpts);
+CREATE INDEX idx_playername ON km_users(playername);
+CREATE INDEX idx_email ON km_users(email);
+CREATE INDEX idx_validated ON km_users(validated);
+CREATE INDEX idx_dead ON km_users(dead);
+CREATE INDEX idx_lastaction ON km_users(lastaction);
+CREATE INDEX idx_land ON km_users(land);
+CREATE INDEX idx_honor ON km_users(honor);
+CREATE INDEX idx_skillpts ON km_users(skillpts);
 
 -- Add indices for battle records (logs page)
-CREATE INDEX IF NOT EXISTS idx_attid ON km_battlerecords(attid);
-CREATE INDEX IF NOT EXISTS idx_victimid ON km_battlerecords(victimid);
+CREATE INDEX idx_attid ON km_battlerecords(attid);
+CREATE INDEX idx_victimid ON km_battlerecords(victimid);
 
 -- Add indices for forum system
-CREATE INDEX IF NOT EXISTS idx_forumparent ON km_messages(forumparent);
-CREATE INDEX IF NOT EXISTS idx_parentid ON km_messages(parentid);
-CREATE INDEX IF NOT EXISTS idx_posterid ON km_messages(posterid);
+CREATE INDEX idx_forumparent ON km_messages(forumparent);
+CREATE INDEX idx_parentid ON km_messages(parentid);
+CREATE INDEX idx_posterid ON km_messages(posterid);
 
 -- Optional: Add new security fields for future enhancements
 -- Uncomment these if you want additional security features:

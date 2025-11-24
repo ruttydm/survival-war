@@ -1,46 +1,59 @@
 <?php
 
-//start session
 require_once 'includes/bootstrap.php';
-
-//include html
 include 'up_html.php';
 
-//if user is online
-if(isset($_SESSION['player'])){
+function render_battle_logs(PDO $db): void {
+  // Check if user is logged in
+  $player_name = $_SESSION['player'] ?? null;
+  if ($player_name === null) {
+    return;
+  }
 
-     //user stats
-     $player=$_SESSION['player'];
-     $userstats=$db->prepare("SELECT * from km_users where playername=:player");
-     $userstats->execute(['player' => $player]);
-     $userstats3=$userstats->fetch();
+  // Fetch user stats
+  $statement = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
+  $statement->execute(['player' => $player_name]);
+  $user_stats = $statement->fetch();
 
-     if(!$userstats3) {
-       die("Could not get user stats");
-     }
+  if (!$user_stats) {
+    die("Could not get user stats");
+  }
 
-	  //if there are attacks
-      if($userstats3['numberattck']>0)
-      {
-        print "You have survived {$userstats3['numberattck']} attacks since your last login.<br><br>";
-        $resets=$db->prepare("update km_users set numberattck='0' where playername=:player");
-        $resets->execute(['player' => $player]);
-      }
+  // Handle attack notifications
+  $attack_count = (int)$user_stats['numberattck'];
+  if ($attack_count > 0) {
+    echo "You have survived {$attack_count} attacks since your last login.<br><br>";
 
-      //view table
-      print "</td></tr></table><br><br>";
-      $getbattlerecords=$db->query("SELECT * from km_battlerecords");
-      print "<table class='maintable'>";
-      print "<tr class='headline'><td colspan='4'><center>Battle records</center></td></tr>";
-      print "<tr class='mainrow'><td>Attacker ID</td><td>Attacker name</td><td>Result</td><td>Land lost</td></tr>";
-      while($getbattlerecords3=$getbattlerecords->fetch())
-      {
-         print "<tr class='mainrow'><td>{$getbattlerecords3['attid']}</td><td>{$getbattlerecords3['attname']}</td><td>{$getbattlerecords3['result']}</td><td>{$getbattlerecords3['landlost']}</td></tr>";
-      }
-      print "</table><br><br>";
+    // Reset attack counter
+    $reset_statement = $db->prepare("UPDATE km_users SET numberattck = '0' WHERE playername = :player");
+    $reset_statement->execute(['player' => $player_name]);
+  }
+
+  // Close previous table context (legacy structure)
+  echo "</td></tr></table><br><br>";
+
+  // Render Battle Records Table
+  echo "<table class='maintable'>";
+  echo "<tr class='headline'><td colspan='4'><center>Battle records</center></td></tr>";
+  echo "<tr class='mainrow'>
+          <td>Attacker ID</td>
+          <td>Attacker name</td>
+          <td>Result</td>
+          <td>Land lost</td>
+        </tr>";
+
+  $records_query = $db->query("SELECT * FROM km_battlerecords");
+  while ($record = $records_query->fetch()) {
+    echo "<tr class='mainrow'>
+            <td>{$record['attid']}</td>
+            <td>{$record['attname']}</td>
+            <td>{$record['result']}</td>
+            <td>{$record['landlost']}</td>
+          </tr>";
+  }
+  echo "</table><br><br>";
 }
 
-//include html
-include 'down_html.php'
+render_battle_logs($db);
 
-?>
+include 'down_html.php';
