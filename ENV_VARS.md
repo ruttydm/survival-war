@@ -2,10 +2,19 @@
 
 This application uses minimal environment variable configuration for easy deployment on Coolify.
 
-## Required Variables (Set in Coolify UI)
+## Quick Start (Zero Configuration for Testing)
 
-### Essential
-- **`DB_PASS`** - MySQL root password (e.g., `your_secure_password_here`)
+For quick testing, you can deploy **without setting any variables**:
+- `DB_PASS` defaults to `changeme` (⚠️ change in production!)
+- `SERVICE_FQDN_APP_8080` is auto-set by Coolify
+
+## Recommended Setup (Production)
+
+### Required Variables (Set in Coolify UI)
+
+- **`DB_PASS`** - Your secure MySQL password (e.g., `your_secure_password_here`)
+  - Default: `changeme` (only for testing!)
+  - **⚠️ MUST be changed for production**
 
 ### Optional (but recommended)
 - **`ADMIN_EMAIL`** - Admin email address for notifications
@@ -42,7 +51,18 @@ Coolify automatically sets these - **no manual configuration needed**:
 
 ## Coolify Setup Steps
 
-### Minimal Setup (2 variables)
+### Absolute Minimum (Zero Config Deploy)
+
+1. **Add Repository** in Coolify
+2. **Deploy** 🚀
+
+That's it! The app will use:
+- `DB_PASS=changeme` (default password)
+- `SERVICE_FQDN_APP_8080` (auto-set by Coolify)
+
+⚠️ **Warning**: The default password is NOT secure. Change it for production!
+
+### Minimal Setup (1-2 variables)
 
 1. **Add Repository** in Coolify
 2. **Set Environment Variables**:

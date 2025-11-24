@@ -7,9 +7,11 @@ services:
       dockerfile: Dockerfile
     container_name: survival-war-app
     restart: unless-stopped
-    ports:
-      - "8080:80"
-      - "8443:443"
+    # Ports are managed by Coolify's proxy - do not expose here
+    # For local development, uncomment these:
+    # ports:
+    #   - "8080:80"
+    #   - "8443:443"
     environment:
       # PHP Configuration
       PHP_OPCACHE_ENABLE: "1"
@@ -24,7 +26,7 @@ services:
       DB_HOST: ${DB_HOST:-mysql}
       DB_NAME: ${DB_NAME:-survival_war}
       DB_USER: ${DB_USER:-root}
-      DB_PASS: ${DB_PASS:-}
+      DB_PASS: ${DB_PASS:-changeme}
 
       # Site Configuration
       # Coolify automatically provides SERVICE_FQDN_APP_8080 with your domain
@@ -59,18 +61,20 @@ services:
     container_name: survival-war-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASS:-}
+      MYSQL_ROOT_PASSWORD: ${DB_PASS:-changeme}
       MYSQL_DATABASE: ${DB_NAME:-survival_war}
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    # Port not needed in Coolify - services communicate via internal network
+    # For local development with external MySQL client, uncomment:
+    # ports:
+    #   - "3306:3306"
     networks:
       - survival-war-network
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${DB_PASS}" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root $$([ -n \"$$MYSQL_ROOT_PASSWORD\" ] && echo \"-p$$MYSQL_ROOT_PASSWORD\" || echo \"\") || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
