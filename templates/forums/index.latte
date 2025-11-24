@@ -1,0 +1,45 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<center>
+
+<link rel="stylesheet" href="../style.css" type="text/css">
+
+{if $isLoggedIn}
+    <center><A href='../index.php'>Back to Main game</a></center><br>
+    <center><table class='maintable'>
+        <tr class='headline'>
+            <td colspan='2' width=75%>Forum name</td>
+            <td>Topics</td>
+            <td>Posts</td>
+            <td>Last Post</td>
+        </tr>
+        {foreach $forums as $forum}
+        <tr class='mainrow'>
+            <td width=3%>
+                {if $forum['hasNewPosts']}
+                    <img src='../images/postforum.jpg' border='0'>
+                {else}
+                    <img src='../images/postforum.gif' border='0'>
+                {/if}
+            </td>
+            <td>
+                <A href='forum.php?ID={$forum['forumID']|escapeHtml}'>{$forum['forumname']|escapeHtml}</a><br>
+                {$forum['descrip']|escapeHtml}
+            </td>
+            <td>{$forum['numtopics']|escapeHtml}</td>
+            <td>{$forum['numposts']|escapeHtml}</td>
+            <td>
+                {$forum['timelastpost']|escapeHtml}<br>
+                by<b>{$forum['lastposter']|escapeHtml}</b>
+            </td>
+        </tr>
+        {/foreach}
+    </table>
+{else}
+    <table class='maintable'>
+        <tr class='headline'><td><center>Not logged in</center></td></tr>
+        <tr class='mainrow'><td>You are not logged in, please <A href='../login.php'>Login</a></td></tr>
+    </table>
+{/if}
+{/block}

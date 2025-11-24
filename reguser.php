@@ -7,10 +7,9 @@
 
 require_once 'includes/bootstrap.php';
 
-include 'up_html.php';
-
 // Site URL for activation email (use config or fallback to hardcoded)
 $path = defined('SITE_URL') ? SITE_URL : "http://rutgerx99.ninetynine.axc.nl";
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -23,14 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Validate passwords match
         if ($password !== $pass2) {
-            print "Your passwords didn't match.";
+            $message = "Your passwords didn't match.";
         } elseif (empty($password) || empty($pass2)) {
-            print "You did not enter a password.";
+            $message = "You did not enter a password.";
         } else {
             // Check username constraints
             $playerLength = strlen($player);
             if ($playerLength > 21 || $playerLength < 5) {
-                print "Username must be between 5 and 21 characters.";
+                $message = "Username must be between 5 and 21 characters.";
             } else {
                 // Check if player already exists
                 $stmt = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
@@ -38,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $existingPlayer = $stmt->fetch();
 
                 if ($existingPlayer) {
-                    print "There is already a player with that name.";
+                    $message = "There is already a player with that name.";
                 } else {
                     // Check if email already exists
                     $stmt = $db->prepare("SELECT * FROM km_users WHERE email = :email");
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $existingEmail = $stmt->fetch();
 
                     if ($existingEmail) {
-                        print "There is already a player with that e-mail address.";
+                        $message = "There is already a player with that e-mail address.";
                     } else {
                         // Hash password with modern algorithm
                         $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
@@ -76,17 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         mail($email, $emailSubject, $emailBody, "From: " . MAIL_FROM);
 
-                        print "Registration successful! You have been sent an activation key to your email.<br>";
-                        print "Click here to <a href='login.php'>Login</a>";
+                        $message = "Registration successful! You have been sent an activation key to your email.<br>";
+                        $message .= "Click here to <a href='login.php'>Login</a>";
                     }
                 }
             }
         }
     } catch (PDOException $e) {
         error_log("Registration error: " . $e->getMessage());
-        print "An error occurred during registration. Please try again.";
+        $message = "An error occurred during registration. Please try again.";
     }
 }
 
-include 'down_html.php';
-?>
+// Render template
+$template = TemplateEngine::getInstance();
+$template->display('pages/reguser.latte', ['message' => $message]);

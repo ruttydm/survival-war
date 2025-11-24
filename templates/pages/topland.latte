@@ -1,0 +1,14 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<center>Page:
+{foreach $pages as $page}
+	<A href='topland.php?start={$page['start']}'>{$page['number']}</a>
+{/foreach}
+</center><center>Players by Rank<br>
+<table class='maintable' border='1'><tr class='mainrow'><td>ID#</td><td>Player</td><td>Land</td></tr>
+{foreach $topPlayers as $player}
+	<tr><td>{$player['ID']}</td><td>{$player['playername']|escapeHtml}</td><td>{$player['land']}</td></tr>
+{/foreach}
+</table>
+{/block}

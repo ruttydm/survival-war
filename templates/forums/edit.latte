@@ -1,0 +1,30 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<link rel="stylesheet" href="../style.css" type="text/css">
+
+{if $isLoggedIn}
+    <center>
+    <table class='maintable'>
+        <tr class='headline'>
+            <td><center>Post a Message</center></td>
+        </tr>
+        <tr class='mainrow'>
+            <td>
+                {if isset($success)}
+                    Message edited, please go back to the <A href='messages.php?ID={$messageID|escapeHtml}'>Thread</a>
+                {elseif $showForm}
+                    <form action='edit.php' method='post'>
+                        <input type='hidden' name='msgid' value='{$messageID|escapeHtml}'>
+                        Name: {$playername|escapeHtml}<br><br>
+                        <textarea name='themessage' rows='5' cols='40'>{$messageText|escapeHtml}</textarea><br>
+                        <input type='submit' name='submit' value='submit'>
+                    </form>
+                {/if}
+            </td>
+        </tr>
+    </table>
+{else}
+    You are not logged in.
+{/if}
+{/block}
