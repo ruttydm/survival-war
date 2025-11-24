@@ -33,6 +33,13 @@ FROM serversideup/php:8.5-fpm-nginx AS base
 WORKDIR /var/www/html
 
 # -----------------------------------------------------------------------------
+# WEB SERVER CONFIGURATION
+# -----------------------------------------------------------------------------
+# serversideup/php defaults to serving from /var/www/html/public (Laravel style)
+# We need to override this because our app is in the root directory
+ENV WEBROOT=/var/www/html
+
+# -----------------------------------------------------------------------------
 # INSTALLING SYSTEM PACKAGES
 # -----------------------------------------------------------------------------
 # RUN: Executes commands inside the container during the build process.

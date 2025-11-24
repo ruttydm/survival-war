@@ -16,6 +16,11 @@
 **Cause**: MySQL 9.2 enables SSL by default. The client (likely MariaDB-based) needs explicit flags to ignore this.
 **Fix**: Updated `migrate.sh` to use `--skip-ssl` (more compatible than `--ssl-mode=DISABLED`).
 
+## Issue 4: 404 Healthcheck Error (Current Blocker)
+**Symptoms**: App starts but Healthcheck fails with 404. Coolify says "No available server".
+**Cause**: `serversideup/php` defaults to serving from `public/` (Laravel style). Our app is in the root.
+**Fix**: Added `ENV WEBROOT=/var/www/html` to Dockerfile.
+
 ## How to Deploy Now
 
 1. **Push changes** to Git.
