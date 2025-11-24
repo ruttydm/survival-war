@@ -19,7 +19,7 @@
 ## Issue 4: 404 Healthcheck Error (Current Blocker)
 **Symptoms**: App starts but Healthcheck fails with 404. Coolify says "No available server".
 **Cause**: `serversideup/php` defaults to serving from `public/` (Laravel style). Our app is in the root.
-**Fix**: Added `ENV WEBROOT=/var/www/html` to Dockerfile.
+**Fix**: Added `ENV NGINX_WEBROOT=/var/www/html` to Dockerfile.
 
 ## How to Deploy Now
 

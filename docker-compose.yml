@@ -1,224 +1,48 @@
-# =============================================================================
-# DOCKER COMPOSE - Educational Guide
-# =============================================================================
-# Docker Compose is a tool for defining and running multi-container applications.
-# Instead of running multiple `docker run` commands, you define everything in
-# this YAML file and use `docker-compose up` to start all services together.
-#
-# Think of it like an orchestra conductor - it coordinates multiple containers
-# (musicians) to work together as one application (symphony).
-
-# -----------------------------------------------------------------------------
-# VERSION
-# -----------------------------------------------------------------------------
-# Specifies which version of the Docker Compose file format to use.
-# '3.8' is a modern, stable version with good feature support.
-# Different versions support different features - check Docker docs for details.
 version: '3.8'
 
-# -----------------------------------------------------------------------------
-# SERVICES
-# -----------------------------------------------------------------------------
-# Services are the containers that make up your application. Each service is
-# built from an image (either pre-built or built from a Dockerfile).
-#
-# Our application has 2 services:
-# 1. app - The PHP web application (Survival War)
-# 2. mysql - The MySQL database
 services:
-
-  # ---------------------------------------------------------------------------
-  # APP SERVICE (Web Application)
-  # ---------------------------------------------------------------------------
-  # This service runs your PHP application with nginx and PHP-FPM
   app:
-    # BUILD CONFIGURATION
-    # Tells Docker Compose to build an image from a Dockerfile
     build:
-      context: . # Build context: current directory (where files are)
-      dockerfile: Dockerfile # Which Dockerfile to use (default is "Dockerfile")
-
-    # CONTAINER NAME
-    # Custom name for the container. Without this, Docker generates one like:
-    # "project_app_1" or random names. Custom names are easier to identify.
+      context: .
+      dockerfile: Dockerfile
     container_name: survival-war-app
-
-    # RESTART POLICY
-    # Tells Docker when to restart the container if it stops:
-    # - no: Never restart (default)
-    # - always: Always restart, even after server reboot
-    # - on-failure: Only restart if container exits with error
-    # - unless-stopped: Always restart unless you explicitly stopped it
-    #
-    # "unless-stopped" is best for production - restarts after crashes but
-    # respects your intention when you manually stop it
     restart: unless-stopped
-
-    # PORT MAPPING (Commented out for Coolify)
-    # Format: "HOST_PORT:CONTAINER_PORT"
-    # Maps a port on your host machine to a port inside the container.
-    #
-    # Example: "8080:80" means:
-    # - Container listens on port 80 (inside its own network)
-    # - You access it on port 8080 from your host (localhost:8080)
-    #
-    # Why commented out?
-    # - Coolify uses Traefik (a reverse proxy) to handle routing
-    # - Traefik automatically discovers containers and routes traffic
-    # - Publishing ports would conflict with Coolify's proxy
-    #
-    # For local development, use docker-compose.override.yml instead
-    # Ports are managed by Coolify's proxy - do not expose here
-    # For local development, uncomment these:
-    # ports:
-    #   - "8080:80"
-    #   - "8443:443"
-
-    # ENVIRONMENT VARIABLES
-    # Variables passed into the container. Inside the container, PHP can access
-    # these via $_ENV['VARIABLE_NAME'] or getenv('VARIABLE_NAME').
-    #
-    # Format: VARIABLE: value
-    # Or: VARIABLE: ${HOST_VAR:-default}
-    #   - ${HOST_VAR}: Value from environment variable on host machine
-    #   - :-default: If HOST_VAR doesn't exist, use "default" instead
-    #
-    # This pattern allows:
-    # 1. Different values for dev/production (set HOST_VAR differently)
-    # 2. Sensible defaults if variable isn't set
-    # 3. Easy configuration via .env file
+    # Ports managed by Coolify/Traefik. Use docker-compose.override.yml for local dev.
     environment:
-      # --- PHP OPCACHE CONFIGURATION ---
-      # OPcache caches compiled PHP code in memory for better performance
-      # Without it, PHP recompiles files on every request (slow!)
-
-      PHP_OPCACHE_ENABLE: "1" # Turn on OPcache
-
-      # How often to check if files changed (in seconds)
-      # 0 = always check (dev), 60 = check every minute (prod)
+      # PHP Configuration
+      PHP_OPCACHE_ENABLE: "1"
       PHP_OPCACHE_REVALIDATE_FREQ: "0"
-
-      # Validate timestamps? (check if file modified)
-      # 0 = don't check (faster, for prod), 1 = check (for dev)
       PHP_OPCACHE_VALIDATE_TIMESTAMPS: "0"
-
-      # How many PHP files to cache (more = better for large apps)
       PHP_OPCACHE_MAX_ACCELERATED_FILES: "10000"
-
-      # RAM allocated to OPcache (in MB)
       PHP_OPCACHE_MEMORY_CONSUMPTION: "192"
-
-      # Maximum % of wasted memory before triggering cleanup
       PHP_OPCACHE_MAX_WASTED_PERCENTAGE: "10"
 
-      # --- DATABASE CONFIGURATION ---
-      # Connection details for MySQL database
-
-      # Database hostname. In Docker networks, services can talk to each other
-      # by their service name. "mysql" refers to the mysql service below.
-      # ${DB_HOST:-mysql} means: use $DB_HOST if set, else use "mysql"
+      # Database Configuration
       DB_HOST: ${DB_HOST:-mysql}
-
-      # Database name - the specific database within MySQL to use
       DB_NAME: ${DB_NAME:-survival_war}
-
-      # Database username (root = admin user with all permissions)
       DB_USER: ${DB_USER:-root}
-
-      # Database password
-      # Default "changeme" is intentionally obvious - should be changed!
-      # In Coolify, set this via environment variables in the UI
       DB_PASS: ${DB_PASS:-changeme}
 
-      # --- SITE CONFIGURATION ---
-
-      # The public URL where your site is accessible
-      # SERVICE_FQDN_APP_8080 is a special Coolify variable that contains
-      # your configured domain (e.g., https://survival-war.yourdomain.com)
-      # For local dev, it falls back to http://localhost:8080
+      # Site Configuration
       SITE_URL: ${SERVICE_FQDN_APP_8080:-http://localhost:8080}
-
-      # Display name for your website (shown in emails, page titles, etc.)
       SITE_NAME: ${SITE_NAME:-Survival War}
-
-      # Admin email for notifications and contact purposes
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
 
-      # --- SECURITY CONFIGURATION ---
-
-      # How long a user session lasts (in seconds)
-      # 7200 = 2 hours. After this, user must log in again.
+      # Security
       SESSION_LIFETIME: ${SESSION_LIFETIME:-7200}
-
-      # Minimum password length requirement
-      # Higher = more secure, but harder to remember
       PASSWORD_MIN_LENGTH: ${PASSWORD_MIN_LENGTH:-8}
 
-      # --- DEBUG/DEVELOPMENT SETTINGS ---
-
-      # Show detailed error messages in browser?
-      # false = production (hide errors), true = development (show errors)
+      # Debug/Development
       DEBUG_MODE: ${DEBUG_MODE:-false}
-
-      # Display PHP errors on screen?
-      # Should be false in production to avoid leaking sensitive info
       DISPLAY_ERRORS: ${DISPLAY_ERRORS:-false}
-
-      # Write errors to log file?
-      # Should always be true so you can debug issues
       LOG_ERRORS: ${LOG_ERRORS:-true}
-
-    # VOLUMES
-    # Volumes mount directories from host into container. Changes persist!
-    # Format: "HOST_PATH:CONTAINER_PATH"
-    #
-    # Why use volumes?
-    # 1. Persistence - data survives container restarts
-    # 2. Sharing - multiple containers can access same data
-    # 3. Development - edit code on host, immediately reflected in container
-    #
-    # ./logs:/var/www/html/logs means:
-    # - Container writes logs to /var/www/html/logs
-    # - Those files appear in ./logs on your host machine
-    # - You can view/analyze logs without entering the container
     volumes:
       - ./logs:/var/www/html/logs
-
-    # DEPENDS_ON
-    # Defines startup order and dependencies between services.
-    # The app service "depends on" the mysql service.
-    #
-    # Without condition: Docker just starts mysql before app (no health check)
-    # With condition: service_healthy: Wait until mysql is HEALTHY before starting app
-    #
-    # This prevents the app from trying to connect to MySQL before it's ready
     depends_on:
       mysql:
-        condition: service_healthy # Wait for mysql healthcheck to pass
-
-    # NETWORKS
-    # Networks allow containers to communicate. Without a network, containers
-    # are isolated and can't talk to each other.
-    #
-    # All services on the same network can use service names as hostnames.
-    # Example: app can connect to mysql using hostname "mysql"
-    #
-    # Docker creates a default network, but custom networks allow:
-    # - Custom network names
-    # - Better isolation (only containers on same network can talk)
-    # - Custom DNS resolution
+        condition: service_healthy
     networks:
       - survival-war-network
-
-    # HEALTHCHECK
-    # Same as Dockerfile HEALTHCHECK, but defined at container level.
-    # Allows Docker to monitor if container is working properly.
-    #
-    # test: Command to run (CMD or CMD-SHELL format)
-    # interval: How often to check
-    # timeout: How long to wait for check to complete
-    # retries: How many failures before marking unhealthy
-    # start_period: Grace period before starting checks (container startup time)
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/login.php" ]
       interval: 30s
@@ -226,92 +50,19 @@ services:
       retries: 3
       start_period: 40s
 
-  # ---------------------------------------------------------------------------
-  # MYSQL SERVICE (Database)
-  # ---------------------------------------------------------------------------
-  # This service runs MySQL 9.2, the database that stores all game data
   mysql:
-    # IMAGE
-    # Instead of building from Dockerfile, pull a pre-built image.
-    # "mysql:9.2" means:
-    # - Image name: mysql (official MySQL image)
-    # - Tag: 9.2 (specific version)
-    #
-    # Tags can be versions (9.2), aliases (latest), or special builds
-    # Always specify a version in production! "latest" can change unexpectedly.
     image: mysql:9.2
-
-    # Container name for easy identification
     container_name: survival-war-mysql
-
-    # Restart policy - same as app service
     restart: unless-stopped
-
-    # ENVIRONMENT VARIABLES FOR MYSQL
-    # MySQL container is configured via environment variables
-    # Check MySQL Docker image docs for all available options
     environment:
-      # Root password for MySQL admin user
-      # MUST be set or MySQL won't start!
       MYSQL_ROOT_PASSWORD: ${DB_PASS:-changeme}
-
-      # Automatically create this database on first startup
-      # If database already exists (from volume), this is ignored
       MYSQL_DATABASE: ${DB_NAME:-survival_war}
-
-      # Character set for text encoding
-      # utf8mb4 supports all Unicode characters including emojis
-      # (utf8 in MySQL is actually limited utf8mb3, not full UTF-8!)
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
-
-      # Collation determines how text is sorted and compared
-      # unicode_ci: Case-insensitive, Unicode-aware sorting
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
-
-    # VOLUMES FOR MYSQL
-    # MySQL stores database files in /var/lib/mysql inside container
-    # We mount a named volume to persist this data
-    #
-    # Named volume "mysql-data" (defined below) vs. bind mount (./data):
-    # - Named volume: Managed by Docker, better performance, portable
-    # - Bind mount: Specific host path, easier to backup/inspect manually
-    #
-    # Why persist MySQL data?
-    # - Without volume: All data lost when container stops!
-    # - With volume: Data survives container recreation, updates, etc.
     volumes:
       - mysql-data:/var/lib/mysql
-
-    # PORT MAPPING (Commented out for Coolify)
-    # MySQL listens on port 3306 inside container
-    # Publishing it allows external tools (MySQL Workbench, etc.) to connect
-    #
-    # In Coolify, services communicate via internal Docker network,
-    # so exposing ports is unnecessary and can cause conflicts
-    # Port not needed in Coolify - services communicate via internal network
-    # For local development with external MySQL client, uncomment:
-    # ports:
-    #   - "3306:3306"
-
-    # Networks - same network as app so they can communicate
     networks:
       - survival-war-network
-
-    # HEALTHCHECK FOR MYSQL
-    # Uses mysqladmin (MySQL admin tool) to ping the database
-    #
-    # CMD-SHELL: Run command in a shell (allows shell features like conditionals)
-    #
-    # The command:
-    # mysqladmin ping -h localhost -u root
-    #   If MYSQL_ROOT_PASSWORD is set: add -p$MYSQL_ROOT_PASSWORD
-    #   Else: don't add password flag
-    # || exit 1: If command fails, exit with code 1 (unhealthy)
-    #
-    # Why complex password handling?
-    # MySQL with empty password requires no -p flag
-    # MySQL with password requires -p flag
-    # This handles both cases automatically
     healthcheck:
       test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root $$([ -n \"$$MYSQL_ROOT_PASSWORD\" ] && echo \"-p$$MYSQL_ROOT_PASSWORD\" || echo \"\") || exit 1" ]
       interval: 10s
@@ -319,97 +70,10 @@ services:
       retries: 5
       start_period: 30s
 
-# -----------------------------------------------------------------------------
-# NETWORKS
-# -----------------------------------------------------------------------------
-# Define custom networks for container communication.
-# Without this section, Docker creates a default network.
-#
-# networks:
-#   network-name:
-#     driver: network-type
-#
-# Network drivers:
-# - bridge: Default, containers on same host (most common)
-# - host: Container uses host's network directly (no isolation)
-# - overlay: Multi-host networks (Docker Swarm)
-# - none: No networking (isolated container)
-#
-# Why custom network?
-# - Descriptive name (survival-war-network vs. default_default)
-# - Can configure DNS, subnet, IP ranges, etc.
-# - Can connect multiple compose projects via external networks
 networks:
   survival-war-network:
-    driver: bridge # Standard Docker network for single-host setups
+    driver: bridge
 
-# -----------------------------------------------------------------------------
-# VOLUMES
-# -----------------------------------------------------------------------------
-# Define named volumes for persistent data storage.
-# Named volumes are managed by Docker and can be reused across containers.
-#
-# volumes:
-#   volume-name:
-#     driver: storage-driver
-#
-# Drivers:
-# - local: Store on host filesystem (default)
-# - nfs: Network file system
-# - custom drivers: Cloud storage, distributed storage, etc.
-#
-# Why named volumes?
-# 1. Easy to backup: docker run --rm -v mysql-data:/data -v $(pwd):/backup ubuntu tar czf /backup/backup.tar.gz /data
-# 2. Easy to migrate: Move between hosts, clone, etc.
-# 3. Better performance than bind mounts on Mac/Windows
-# 4. Docker manages cleanup: docker volume prune removes unused volumes
-#
-# View volumes: docker volume ls
-# Inspect volume: docker volume inspect mysql-data
-# Remove volume: docker volume rm mysql-data (WARNING: deletes all data!)
 volumes:
   mysql-data:
-    driver: local # Store data on the Docker host's filesystem
-
-# =============================================================================
-# COMMON DOCKER COMPOSE COMMANDS
-# =============================================================================
-#
-# Start all services (build if needed):
-#   docker-compose up
-#
-# Start in background (detached mode):
-#   docker-compose up -d
-#
-# Stop all services:
-#   docker-compose stop
-#
-# Stop and remove containers (keeps volumes):
-#   docker-compose down
-#
-# Stop and remove everything including volumes (DANGER: deletes data!):
-#   docker-compose down -v
-#
-# View logs from all services:
-#   docker-compose logs
-#
-# Follow logs in real-time:
-#   docker-compose logs -f
-#
-# View logs from specific service:
-#   docker-compose logs app
-#
-# Rebuild images:
-#   docker-compose build
-#
-# Rebuild and start:
-#   docker-compose up --build
-#
-# Run command in service:
-#   docker-compose exec app bash        # Open shell in app container
-#   docker-compose exec mysql mysql -u root -p  # Open MySQL client
-#
-# List running containers:
-#   docker-compose ps
-#
-# =============================================================================
+    driver: local
