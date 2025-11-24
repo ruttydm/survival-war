@@ -1,36 +1,37 @@
 # Coolify Deployment Fixes
 
-## Issue 1: "No available server"
-**Symptoms**: Coolify shows "No available server" when accessing the site.
-**Cause**: The application container was crashing because the custom `ENTRYPOINT` script tried to execute `/entrypoint`, which does not exist in the `serversideup/php` image.
-**Fix**: 
-- Removed custom `ENTRYPOINT` override.
-- Switched to using `/etc/entrypoint.d/` scripts, which is the native way `serversideup/php` handles custom startup tasks.
-- Created `start-cron.sh` and copied `migrate.sh` to `/etc/entrypoint.d/`.
+## Issue 1: "No available server" (Entrypoint Crash)
+**Symptoms**: Container crashing immediately.
+**Cause**: Custom `ENTRYPOINT` tried to run `/entrypoint` which doesn't exist.
+**Fix**: Switched to native `/etc/entrypoint.d/` system.
 
-## Issue 2: Port Conflict
-**Symptoms**: Deployment failed with "Bind for 0.0.0.0:8080 failed: port is already allocated".
-**Cause**: `docker-compose.yml` had explicit port mappings (`8080:80`), which conflicted with Coolify's proxy (Traefik).
+## Issue 2: "No available server" (Port Mismatch)
+**Symptoms**: Container runs but Coolify shows "No available server".
+**Cause**: 
+- `serversideup/php` image listens on **port 8080** (unprivileged default).
+- Our config assumed **port 80**.
+- Healthcheck failed (`curl localhost/login.php` -> connection refused).
+- Traefik couldn't route traffic because it looks for exposed ports.
+
 **Fix**:
-- Removed `ports` section from `docker-compose.yml`.
-- Created `docker-compose.override.yml` for local development ports (ignored by Coolify).
+- Updated `Dockerfile` to `EXPOSE 8080`.
+- Updated Healthchecks to check `http://localhost:8080/login.php`.
+- Updated local dev ports to `8080:8080`.
 
 ## Issue 3: MySQL Healthcheck
-**Symptoms**: MySQL container marked "unhealthy".
-**Cause**: Healthcheck command failed when `DB_PASS` was empty (default).
-**Fix**:
-- Updated healthcheck to handle empty passwords.
-- Changed default `DB_PASS` to `changeme` for easier testing.
+**Symptoms**: MySQL container unhealthy.
+**Cause**: Empty password handling.
+**Fix**: Updated healthcheck command and set default password.
 
 ## How to Deploy Now
 
 1. **Push changes** to Git.
 2. **Redeploy** in Coolify.
 3. **Verify**:
-   - MySQL should start and be healthy.
-   - App should start (no crash) and be healthy.
-   - Site should be accessible via the Coolify-provided URL.
+   - App should be healthy (Healthcheck passing on port 8080).
+   - Coolify should detect port 8080 automatically.
+   - Site should be accessible.
 
 ## Local Development
-- Run `docker-compose up` as usual.
-- It will use `docker-compose.override.yml` to expose ports 8080 and 3306.
+- Run `docker-compose up`.
+- Access site at `http://localhost:8080`.

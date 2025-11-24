@@ -153,7 +153,7 @@ RUN chmod +x /etc/entrypoint.d/98-start-cron.sh
 # - Docker Compose can wait for services to be healthy before starting dependents
 # - You can see health status in `docker ps`
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost/login.php || exit 1
+    CMD curl -f http://localhost:8080/login.php || exit 1
 
 # -----------------------------------------------------------------------------
 # EXPOSING PORTS
@@ -162,11 +162,11 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 # only - it doesn't actually publish the port. Think of it as documentation.
 #
 # To actually make ports accessible, you need:
-# - docker run -p 8080:80 (maps host port 8080 to container port 80)
+# - docker run -p 8080:8080 (maps host port 8080 to container port 8080)
 # - ports: in docker-compose.yml
 #
-# Port 80: HTTP (web traffic)
-# Port 443: HTTPS (encrypted web traffic)
+# Port 8080: HTTP (web traffic) - default for unprivileged serversideup image
+# Port 8443: HTTPS (encrypted web traffic)
 #
 # Note: In Coolify, ports are managed by the proxy, so we don't publish them
-EXPOSE 80 443
+EXPOSE 8080 8443

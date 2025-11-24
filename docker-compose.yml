@@ -220,7 +220,7 @@ services:
     # retries: How many failures before marking unhealthy
     # start_period: Grace period before starting checks (container startup time)
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost/login.php" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/login.php" ]
       interval: 30s
       timeout: 3s
       retries: 3
