@@ -6,13 +6,22 @@ session_start();
 </center><br><br>
 <link rel="stylesheet" href="../style.css" type="text/css">
 <?php
-if (isset($_SESSION['player'])) 
+if (isset($_SESSION['player']))
   {
     $player=$_SESSION['player'];
-    $userstats="SELECT * from km_users where playername='$player'";
-    $userstats2=mysql_query($userstats) or die("Could not get user stats");
-    $userstats3=mysql_fetch_array($userstats2);
-    $forumid=$_GET['forumid'];
+    $stmt = $pdo->prepare("SELECT * FROM km_users WHERE playername = ?");
+    $stmt->execute([$player]);
+    $userstats3 = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$userstats3) {
+      die("Could not get user stats");
+    }
+
+    $forumid = filter_var($_GET['forumid'], FILTER_VALIDATE_INT);
+    if (!$forumid) {
+      die("Invalid forum ID");
+    }
+
     print "<center>";
     print "<table class='maintable'>";
     print "<tr class='headline'><td><center>Post a Message</center></td></tr>";
@@ -30,27 +39,28 @@ if (isset($_SESSION['player']))
       else
       {
         $subject=$_POST['subject'];
-        $fid=$_POST['fid'];
+        $fid = filter_var($_POST['fid'], FILTER_VALIDATE_INT);
+        if (!$fid) {
+          die("Invalid forum ID");
+        }
         $themessage=$_POST['themessage'];
-        $subject=addslashes($subject);
-        $themessage=addslashes($themessage);
         $unixtime=date("U");
         $realtime=date("D M d, Y H:i:s");
         $subject=strip_tags($subject);
         $themessage=strip_tags($themessage);
-        $inputmessage="Insert into km_messages (posterid,time,realtime,subject,message,forumparent) values('$userstats3[ID]','$unixtime','$realtime','$subject','$themessage','$fid')";
-        mysql_query($inputmessage) or die("Could not input message");
-        $updateforum="update km_forums set timelastpost='$realtime', lastposter='$userstats3[playername]',numposts=numposts+1,numtopics=numtopics+1,realtimelastpost='$unixtime' where forumID='$fid'";
-        mysql_query($updateforum) or die("Could not update forum");
-        print "Thanks for post, redirecting to main .... <META HTTP-EQUIV = 'Refresh' Content = '2; URL =forum.php?ID=$fid'>";
+        $stmt = $pdo->prepare("INSERT INTO km_messages (posterid, time, realtime, subject, message, forumparent) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$userstats3['ID'], $unixtime, $realtime, $subject, $themessage, $fid]);
+        $stmt = $pdo->prepare("UPDATE km_forums SET timelastpost = ?, lastposter = ?, numposts = numposts+1, numtopics = numtopics+1, realtimelastpost = ? WHERE forumID = ?");
+        $stmt->execute([$realtime, $userstats3['playername'], $unixtime, $fid]);
+        print "Thanks for post, redirecting to main .... <META HTTP-EQUIV = 'Refresh' Content = '2; URL =forum.php?ID=".htmlspecialchars($fid, ENT_QUOTES, 'UTF-8')."'>";
       }
 
     }
     else
     {
       print "<form action='post.php' method='post'>";
-      print "<input type='hidden' name='fid' value='$forumid'>";
-      print "Name: $userstats3[playername]<br><br>";
+      print "<input type='hidden' name='fid' value='".htmlspecialchars($forumid, ENT_QUOTES, 'UTF-8')."'>";
+      print "Name: ".htmlspecialchars($userstats3['playername'], ENT_QUOTES, 'UTF-8')."<br><br>";
       print "Subject:<br>";
       print "<input type='text' name='subject' size='30'><br><br>";
       print "Message:<br>";
@@ -58,7 +68,7 @@ if (isset($_SESSION['player']))
       print "<input type='submit' name='submit' value='submit'></form>";
 
     }
-    
+
   }
  
 

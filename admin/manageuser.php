@@ -1,86 +1,85 @@
 <?php
-//killmonster admin main page, from here you can add and delete monsters
-include "connect.php";
-session_start();
-?>
-<?
-if (isset($_SESSION['isadmin'])) //if there is an administrative session
-  {
-     $ID=$_GET['ID'];
-     if(isset($ID)) //if submit has been pushed to delete user
-     {
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' bordercolor='white'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       $del="Delete from km_users where ID='$ID'";
-       mysql_query($del) or die('Could not delete user');
-       print "User Deleted";
-       print "</td></tr></table>";    
-       print "</center>";
- 
+/**
+ * User Management
+ *
+ * Admin interface to view and delete users
+ */
 
-     }
-     
-     else
-     {
+require_once __DIR__ . '/../includes/bootstrap.php';
 
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' cellspacing='20'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       print "All users listed in ABC order";
-       global $start;
-       if(!isset($start))
-       {
-          $start=0;
-       }
-       $userselect="SELECT * from km_users order by playername ASC limit $start, 20 ";
-       $userselect2=mysql_query($userselect) or die("Could not select user");
-       print "<table border='1' bordercolor='white' bgcolor='#e1e1e1'>";
-       print "<tr><td>Username</td><td>E-mail</td><td>Delete</td></tr>";
-       while($userselect3=mysql_fetch_array($userselect2))
-       {
-         print "<tr><td>$userselect3[playername]</td><td>$userselect3[email]</td><td><A href='manageuser.php?ID=$userselect3[ID]'>Delete</a></td></tr>";
-       }
-       print "</table>";       
-       print "</td></tr></table>";    
-       print "</center>";
-     }
-
-  $order="SELECT * from km_users";
-$order2=mysql_query($order);
-$d=0;
-$f=0;
-$g=1;
-
-
-
-
-print "Page: ";
-while($order3=mysql_fetch_array($order2))
-{
-if($f%20==0)
-  {
-    
-
-    print "<A href='manageuser.php?start=$d'>$g</a> ";
-    $g++;
-  }
-$d=$d+1;
-$f++;
-
+if (!Session::isAdminLoggedIn()) {
+    echo "Sorry, not logged in as administrator, please <a href='login.php'>Login</a>";
+    exit;
 }
-  }
-else //if not logged in as admin
-  {
-    print "Sorry, not logged in as administrator, please <A href='login.php'>Login</a>";
-  }
 
-?>
+$ID = $_GET['ID'] ?? null;
+
+if ($ID) {
+    // Delete user
+    try {
+        $stmt = $db->prepare("DELETE FROM km_users WHERE ID = :id");
+        $stmt->execute(['id' => $ID]);
+
+        echo "<center><h3>Kill Monster Admin</h3></center><br>";
+        echo "<center>";
+        echo "<table border='0' width='70%' cellspacing='20'>";
+        echo "<tr><td width='25%' valign='top'>";
+        include 'left.php';
+        echo "</td>";
+        echo "<td valign='top' width='75%'>";
+        echo "User Deleted";
+        echo "</td></tr></table>";
+        echo "</center>";
+    } catch (PDOException $e) {
+        error_log("Error deleting user: " . $e->getMessage());
+        echo "Error deleting user. Please try again.";
+    }
+} else {
+    // List users with pagination
+    echo "<center><h3>Kill Monster Admin</h3></center><br>";
+    echo "<center>";
+    echo "<table border='0' width='70%' cellspacing='20'>";
+    echo "<tr><td width='25%' valign='top'>";
+    include 'left.php';
+    echo "</td>";
+    echo "<td valign='top' width='75%'>";
+    echo "All users listed in ABC order";
+
+    $start = $_GET['start'] ?? 0;
+    $start = (int)$start;
+
+    try {
+        // Select users with pagination
+        $stmt = $db->prepare("SELECT * FROM km_users ORDER BY playername ASC LIMIT :start, 20");
+        $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+        $stmt->execute();
+
+        echo "<table border='1' bordercolor='white' bgcolor='#e1e1e1'>";
+        echo "<tr><td>Username</td><td>E-mail</td><td>Delete</td></tr>";
+
+        while ($user = $stmt->fetch()) {
+            $username = htmlspecialchars($user['playername']);
+            $email = htmlspecialchars($user['email']);
+            $userId = (int)$user['ID'];
+            echo "<tr><td>$username</td><td>$email</td><td><a href='manageuser.php?ID=$userId'>Delete</a></td></tr>";
+        }
+
+        echo "</table>";
+        echo "</td></tr></table>";
+        echo "</center>";
+
+        // Pagination
+        $countStmt = $db->query("SELECT COUNT(*) as total FROM km_users");
+        $total = $countStmt->fetch()['total'];
+
+        echo "Page: ";
+        $pageNum = 1;
+        for ($i = 0; $i < $total; $i += 20) {
+            echo "<a href='manageuser.php?start=$i'>$pageNum</a> ";
+            $pageNum++;
+        }
+    } catch (PDOException $e) {
+        error_log("Error fetching users: " . $e->getMessage());
+        echo "Error loading users. Please try again.";
+    }
+}

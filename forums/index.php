@@ -9,26 +9,31 @@ include "../up_html.php";
 
 <link rel="stylesheet" href="../style.css" type="text/css">
 <?php
-if (isset($_SESSION['player'])) 
+if (isset($_SESSION['player']))
 {
   $playername=$_SESSION['player'];
-  $getuser="SELECT * from km_users where playername='$playername'";
-  $getuser2=mysql_query($getuser) or die("Could not get user info");
-  $getuser3=mysql_fetch_array($getuser2);
+  $stmt = $pdo->prepare("SELECT * FROM km_users WHERE playername = ?");
+  $stmt->execute([$playername]);
+  $getuser3 = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if (!$getuser3) {
+    die("Could not get user info");
+  }
+
   $thedate=date("U");
   $checktime=$thedate-200;
-  $uprecords="Update km_users set lasttime='$thedate' where ID='$getuser3[ID]'";
-  mysql_query($uprecords) or die("Could not update records");
-  if($getuser3[tsgone]<$checktime)
+  $stmt = $pdo->prepare("UPDATE km_users SET lasttime = ? WHERE ID = ?");
+  $stmt->execute([$thedate, $getuser3['ID']]);
+
+  if($getuser3['tsgone']<$checktime)
   {
-    $updatetime="Update km_users set tsgone='$thedate', oldtime='$getuser3[tsgone]' where ID='$getuser3[ID]'";
-    mysql_query($updatetime) or die("Could not update time");
+    $stmt = $pdo->prepare("UPDATE km_users SET tsgone = ?, oldtime = ? WHERE ID = ?");
+    $stmt->execute([$thedate, $getuser3['tsgone'], $getuser3['ID']]);
   }
   print "<center><A href='../index.php'>Back to Main game</a></center><br>";
   print "<center><table class='maintable'><tr class='headline'><td colspan='2' width=75%>Forum name</td><td>Topics</td><td>Posts</td><td>Last Post</td></tr>";
-  $getforums="SELECT * from km_forums order by forumorder ASC";
-  $getforums2=mysql_query($getforums) or die("COuld not get forums");
-  while($getforums3=mysql_fetch_array($getforums2))
+  $stmt = $pdo->query("SELECT * FROM km_forums ORDER BY forumorder ASC");
+  while($getforums3 = $stmt->fetch(PDO::FETCH_ASSOC))
   {
      print "<tr class='mainrow'><td width=3%>";
 
@@ -41,7 +46,11 @@ if (isset($_SESSION['player']))
        print "<img src='../images/postforum.gif' border='0'>";
      }
 
-     print "</td><td><A href='forum.php?ID=$getforums3[forumID]'>$getforums3[forumname]</a><br>$getforums3[descrip]</td><td>$getforums3[numtopics]</td><td>$getforums3[numposts]</td><td>$getforums3[timelastpost]<br>by<b>$getforums3[lastposter]</b></td></tr>";
+     $forumname = htmlspecialchars($getforums3['forumname'], ENT_QUOTES, 'UTF-8');
+     $descrip = htmlspecialchars($getforums3['descrip'], ENT_QUOTES, 'UTF-8');
+     $lastposter = htmlspecialchars($getforums3['lastposter'], ENT_QUOTES, 'UTF-8');
+     $timelastpost = htmlspecialchars($getforums3['timelastpost'], ENT_QUOTES, 'UTF-8');
+     print "</td><td><A href='forum.php?ID=".htmlspecialchars($getforums3['forumID'], ENT_QUOTES, 'UTF-8')."'>$forumname</a><br>$descrip</td><td>".htmlspecialchars($getforums3['numtopics'], ENT_QUOTES, 'UTF-8')."</td><td>".htmlspecialchars($getforums3['numposts'], ENT_QUOTES, 'UTF-8')."</td><td>$timelastpost<br>by<b>$lastposter</b></td></tr>";
   }
   print "</table>";
 

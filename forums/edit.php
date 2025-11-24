@@ -4,42 +4,59 @@ session_start();
 ?>
 <link rel="stylesheet" href="../style.css" type="text/css">
 <?php
-if (isset($_SESSION['player'])) 
+if (isset($_SESSION['player']))
   {
     $player=$_SESSION['player'];
-    $userstats="SELECT * from km_users where playername='$player'";
-    $userstats2=mysql_query($userstats) or die("Could not get user stats");
-    $userstats3=mysql_fetch_array($userstats2);
+    $stmt = $pdo->prepare("SELECT * FROM km_users WHERE playername = ?");
+    $stmt->execute([$player]);
+    $userstats3 = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$userstats3) {
+      die("Could not get user stats");
+    }
+
     print "<center>";
     print "<table class='maintable'>";
     print "<tr class='headline'><td><center>Post a Message</center></td></tr>";
     print "<tr class='mainrow'><td>";
     if(isset($_POST['submit']))
     {
-       $ID=$_POST['msgid'];      
+       $ID = filter_var($_POST['msgid'], FILTER_VALIDATE_INT);
+       if (!$ID) {
+         die("Invalid message ID");
+       }
        $themessage=$_REQUEST['themessage'];
-       $upmsg="Update km_messages set message='$themessage' where msgid='$ID'";
-       mysql_query($upmsg) or die("COuld not update message");
-       print "Message edited, please go back to the <A href='messages.php?ID=$ID'>Thread</a>";
+       $themessage=strip_tags($themessage);
+       $stmt = $pdo->prepare("UPDATE km_messages SET message = ? WHERE msgid = ?");
+       $stmt->execute([$themessage, $ID]);
+       print "Message edited, please go back to the <A href='messages.php?ID=".htmlspecialchars($ID, ENT_QUOTES, 'UTF-8')."'>Thread</a>";
 
 
 
     }
     else
     {
-       $ID=$_GET['ID'];
-       $getmessage="SELECT * from km_messages where msgid='$ID'";
-       $getmessage2=mysql_query($getmessage) or die("Could not get message");
-       $getmessage3=mysql_fetch_array($getmessage2);
-       if($userstats3['ID']==$getmessage3['posterid'] || $userstats3[status]==3)
+       $ID = filter_var($_GET['ID'], FILTER_VALIDATE_INT);
+       if (!$ID) {
+         die("Invalid message ID");
+       }
+       $stmt = $pdo->prepare("SELECT * FROM km_messages WHERE msgid = ?");
+       $stmt->execute([$ID]);
+       $getmessage3 = $stmt->fetch(PDO::FETCH_ASSOC);
+
+       if (!$getmessage3) {
+         die("Could not get message");
+       }
+
+       if($userstats3['ID']==$getmessage3['posterid'] || $userstats3['status']==3)
        {
           print "<form action='edit.php' method='post'>";
-          print "<input type='hidden' name='msgid' value='$ID'>";
-          print "Name: $userstats3[playername]<br><br>";
-          print "<textarea name='themessage' rows='5' cols='40'>$getmessage3[message]</textarea><br>";
-          print "<input type='submit' name='submit' value='submit'></form>"; 
+          print "<input type='hidden' name='msgid' value='".htmlspecialchars($ID, ENT_QUOTES, 'UTF-8')."'>";
+          print "Name: ".htmlspecialchars($userstats3['playername'], ENT_QUOTES, 'UTF-8')."<br><br>";
+          print "<textarea name='themessage' rows='5' cols='40'>".htmlspecialchars($getmessage3['message'], ENT_QUOTES, 'UTF-8')."</textarea><br>";
+          print "<input type='submit' name='submit' value='submit'></form>";
 
-      
+
        }
        else
        {
@@ -48,7 +65,7 @@ if (isset($_SESSION['player']))
 
 
     }
-    
+
   }
  
 

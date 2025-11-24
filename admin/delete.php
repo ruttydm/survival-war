@@ -1,44 +1,52 @@
 <?php
-//killmonster admin main page, from here you can add and delete monsters
-include "connect.php";
-session_start();
-?>
-<?
+/**
+ * Delete Forum Category
+ *
+ * Admin interface to delete forum categories
+ */
 
-if (isset($_SESSION['isadmin'])) //if there is an administrative session
-  {
-     print "<center><h3>Kill Monster Admin</h3></center><br>";
-     print "<center>";
-     print "<table border='0' width='70%' cellspacing='20'>";
-     print "<tr><td width='25%' valign='top'>";
-     include 'left.php';
-     print "</td>";
-     print "<td valign='top' width='75%'>";
-     if(isset($_POST['submit']))
-     {
-        $ID=$_POST['ID'];
-        $delforum="Delete from km_forums where forumID='$ID'";
-        mysql_query($delforum) or die("Could not delete forum");
-        print "Forum deleted.";
+require_once __DIR__ . '/../includes/bootstrap.php';
 
-     }
-     else
-     {    
-        $ID=$_GET['ID'];
-        print "<form action='delete.php' method='post'>";
-        print "<input type='hidden' name='ID' value='$ID'>";
-        print "Are you sure you want to delete this forum?<br>";
-        print "<input type='submit' name='submit' value='Delete'></form>";
+if (!Session::isAdminLoggedIn()) {
+    echo "Sorry, not logged in as administrator, please <a href='login.php'>Login</a>";
+    exit;
+}
 
-     }
+echo "<center><h3>Kill Monster Admin</h3></center><br>";
+echo "<center>";
+echo "<table border='0' width='70%' cellspacing='20'>";
+echo "<tr><td width='25%' valign='top'>";
+include 'left.php';
+echo "</td>";
+echo "<td valign='top' width='75%'>";
 
-     print "</td></tr></table>";    
-     print "</center>";
-     
-  }
-else //if not logged in as admin
-  {
-    print "Sorry, not logged in as administrator, please <A href='login.php'>Login</a>";
-  }
+if (isset($_POST['submit'])) {
+    // Delete forum
+    $ID = $_POST['ID'] ?? null;
 
-?>
+    if ($ID) {
+        try {
+            $stmt = $db->prepare("DELETE FROM km_forums WHERE forumID = :id");
+            $stmt->execute(['id' => $ID]);
+            echo "Forum deleted.";
+        } catch (PDOException $e) {
+            error_log("Error deleting forum: " . $e->getMessage());
+            echo "Error deleting forum. Please try again.";
+        }
+    }
+} else {
+    // Show confirmation form
+    $ID = $_GET['ID'] ?? null;
+
+    if ($ID) {
+        echo "<form action='delete.php' method='post'>";
+        echo "<input type='hidden' name='ID' value='" . htmlspecialchars($ID) . "'>";
+        echo "Are you sure you want to delete this forum?<br>";
+        echo "<input type='submit' name='submit' value='Delete'></form>";
+    } else {
+        echo "No forum ID specified.";
+    }
+}
+
+echo "</td></tr></table>";
+echo "</center>";

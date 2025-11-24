@@ -1,5 +1,4 @@
 <?php
-session_start();
 include "up_html.php";
 
        

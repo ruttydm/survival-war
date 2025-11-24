@@ -1,59 +1,92 @@
 <?php
-session_start();
+/**
+ * User Registration Handler
+ *
+ * Processes new user registration with password hashing
+ */
+
+require_once 'includes/bootstrap.php';
+
 include 'up_html.php';
-include "connect.php";
-$path="http://rutgerx99.ninetynine.axc.nl";
-$player=$_POST['player'];
-$password=$_POST['password'];
-$pass2=$_POST['pass2'];
-$player=strip_tags($player);
-$email=$_POST['email'];
-$email=strip_tags($email);
-$ip=$_SERVER['REMOTE_ADDR'];
-if ($password==$pass2)
-{
-  
-  $isplayer="SELECT * from km_users where playername='$player'";
-  $isplayer2=mysql_query($isplayer) or die("Could not query players table");
-  $isplayer3=mysql_fetch_array($isplayer2);
-  if(!$_POST['password'] || !$_POST['pass2'])
-  {
-     print "You did not enter a password";
-  }
-  else if($isplayer3 || strlen($player)>21 || strlen($player)<5)
-  {
-     print "There is already a player of that name or the name you specified is over 21 letters or less than 5 letter";
-  }
-  else
-  {
-    $isaddress="SELECT * from km_users where email='$email'";
-    $isaddress2=mysql_query($isaddress) or die("not able to query for password");
-    $isaddress3=mysql_fetch_array($isaddress2);
-    if($isaddress3)
-    {
-      print "There is already a player with that e-mail address";
+
+// Site URL for activation email (use config or fallback to hardcoded)
+$path = defined('SITE_URL') ? SITE_URL : "http://rutgerx99.ninetynine.axc.nl";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Sanitize inputs
+        $player = Validator::sanitizeString($_POST['player'] ?? '', 50);
+        $password = $_POST['password'] ?? '';
+        $pass2 = $_POST['pass2'] ?? '';
+        $email = Validator::sanitizeEmail($_POST['email'] ?? '');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+        // Validate passwords match
+        if ($password !== $pass2) {
+            print "Your passwords didn't match.";
+        } elseif (empty($password) || empty($pass2)) {
+            print "You did not enter a password.";
+        } else {
+            // Check username constraints
+            $playerLength = strlen($player);
+            if ($playerLength > 21 || $playerLength < 5) {
+                print "Username must be between 5 and 21 characters.";
+            } else {
+                // Check if player already exists
+                $stmt = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
+                $stmt->execute(['player' => $player]);
+                $existingPlayer = $stmt->fetch();
+
+                if ($existingPlayer) {
+                    print "There is already a player with that name.";
+                } else {
+                    // Check if email already exists
+                    $stmt = $db->prepare("SELECT * FROM km_users WHERE email = :email");
+                    $stmt->execute(['email' => $email]);
+                    $existingEmail = $stmt->fetch();
+
+                    if ($existingEmail) {
+                        print "There is already a player with that e-mail address.";
+                    } else {
+                        // Hash password with modern algorithm
+                        $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
+
+                        // Generate activation key
+                        $thekey = bin2hex(random_bytes(32));
+
+                        // Insert new user
+                        $stmt = $db->prepare("
+                            INSERT INTO km_users
+                            (playername, password, email, validated, validkey, numturns, ip)
+                            VALUES (:player, :password, :email, '0', :validkey, '30', :ip)
+                        ");
+
+                        $stmt->execute([
+                            'player' => $player,
+                            'password' => $hashedPassword,
+                            'email' => $email,
+                            'validkey' => $thekey,
+                            'ip' => $ip
+                        ]);
+
+                        // Send activation email
+                        $activationUrl = "$path/activate.php?player=" . urlencode($player) . "&keynode=$thekey";
+                        $emailSubject = "Your Survival War Activation Key";
+                        $emailBody = "Welcome to Survival War!\n\nClick the link below to activate your account:\n$activationUrl\n\nIf you did not create this account, please ignore this email.";
+
+                        mail($email, $emailSubject, $emailBody, "From: " . MAIL_FROM);
+
+                        print "Registration successful! You have been sent an activation key to your email.<br>";
+                        print "Click here to <a href='login.php'>Login</a>";
+                    }
+                }
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Registration error: " . $e->getMessage());
+        print "An error occurred during registration. Please try again.";
     }
-    else
-    {
-      $password=md5($password);
-      $date=round(date("U")/1000);
-      srand($date);
-      $thekey=rand(1,100000000);
-      $thekey=md5($thekey);
-      $SQL = "INSERT into km_users(playername, password, email, validated, validkey, numturns, ip) VALUES ('$player','$password', '$email','0','$thekey','30', '$ip')"; 
-      mysql_query($SQL) or die("could not register");
-      mail("$email","Your Kill Monster Activation key","Paste the URL to activate your account.  $path/activate.php?player=$player&password=$password&keynode=$thekey");
-      print "registration successful. You have been sent an activation key.<br>";
-      print "Click here to <A href='login.php'>Login</a>";
-    }
-  }
 }
 
-else
-{
-  print "You suck, your passwords didn't match or you did not enter a password";
-}
 include 'down_html.php';
 ?>
-
-
