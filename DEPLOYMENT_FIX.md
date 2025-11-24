@@ -21,6 +21,11 @@
 **Cause**: `serversideup/php` defaults to serving from `public/` (Laravel style). Our app is in the root.
 **Fix**: Added `ENV NGINX_WEBROOT=/var/www/html` to Dockerfile.
 
+## Issue 5: Gateway Timeout (PHP Connection)
+**Symptoms**: Healthcheck passes, but accessing site gives 504 Gateway Timeout.
+**Cause**: `connect.php` had hardcoded `localhost` (wrong host) and deprecated `get_magic_quotes_gpc` (fatal error).
+**Fix**: Updated `connect.php` to use environment variables (`DB_HOST`, etc.) and removed deprecated code.
+
 ## How to Deploy Now
 
 1. **Push changes** to Git.
