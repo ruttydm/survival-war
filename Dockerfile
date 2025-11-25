@@ -20,9 +20,9 @@ COPY migrate.sh /etc/entrypoint.d/99-migrate.sh
 RUN chmod +x /etc/entrypoint.d/99-migrate.sh
 
 # Setup directories and permissions
-RUN mkdir -p /var/www/html/logs && \
-    chown -R www-data:www-data /var/www/html/logs && \
-    chmod -R 775 /var/www/html/logs
+RUN mkdir -p /var/www/html/logs /var/www/html/temp/cache && \
+    chown -R www-data:www-data /var/www/html/logs /var/www/html/temp && \
+    chmod -R 775 /var/www/html/logs /var/www/html/temp
 
 RUN chown -R www-data:www-data /var/www/html && \
     find /var/www/html -type f -exec chmod 644 {} \; && \

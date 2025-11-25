@@ -47,7 +47,7 @@ class Database {
         // Create cache directory if it doesn't exist
         $cacheDir = __DIR__ . '/../temp/cache';
         if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0755, true);
+            @mkdir($cacheDir, 0755, true);
         }
 
         $storage = new Nette\Caching\Storages\FileStorage($cacheDir);

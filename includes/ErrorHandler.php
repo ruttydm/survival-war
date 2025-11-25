@@ -21,7 +21,7 @@ class ErrorHandler {
         // Ensure logs directory exists
         $logsDir = dirname(self::$logFile);
         if (!is_dir($logsDir)) {
-            mkdir($logsDir, 0755, true);
+            @mkdir($logsDir, 0755, true);
         }
 
         set_error_handler([self::class, 'handleError']);
@@ -122,7 +122,13 @@ class ErrorHandler {
      * @param string $message
      */
     private static function logError($message) {
-        error_log($message . PHP_EOL, 3, self::$logFile);
+        try {
+            // Suppress error_log errors to avoid infinite loops
+            @error_log($message . PHP_EOL, 3, self::$logFile);
+        } catch (\Throwable $e) {
+            // If logging fails, try to log to syslog instead
+            @error_log($message, 0);
+        }
     }
 
     /**
