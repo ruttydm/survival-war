@@ -66,18 +66,22 @@ $form->onSuccess[] = function (Form $form, \stdClass $data) {
             'ip' => $ip,
         ]);
 
-        // Send activation email
+        // Generate activation URL
         $path = defined('SITE_URL') ? SITE_URL : "http://rutgerx99.ninetynine.axc.nl";
         $activationUrl = "$path/activate.php?player=" . urlencode($data->player) . "&keynode=$thekey";
-        $emailSubject = "Your Survival War Activation Key";
-        $emailBody = "Welcome to Survival War!\n\nClick the link below to activate your account:\n$activationUrl\n\nIf you did not create this account, please ignore this email.";
         
-        mail($data->email, $emailSubject, $emailBody, "From: " . (defined('MAIL_FROM') ? MAIL_FROM : 'noreply@survivalwar.com'));
+        // TODO: Send activation email when email system is configured
+        // mail($data->email, $emailSubject, $emailBody, "From: " . (defined('MAIL_FROM') ? MAIL_FROM : 'noreply@survivalwar.com'));
 
-        // Redirect to login with success message
-        // We can use a session flash message or just a query param
-        header('Location: login.php?registered=1');
-        exit;
+        // Show success page with activation link
+        $template = TemplateEngine::getInstance();
+        $template->display('pages/register.latte', [
+            'form' => $form,
+            'success' => true,
+            'activationUrl' => $activationUrl,
+            'playerName' => $data->player
+        ]);
+        return;
 
     } catch (\Exception $e) {
         $form->addError('An error occurred during registration. Please try again.');
