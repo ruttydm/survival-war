@@ -1,37 +1,53 @@
-<?php //module to display the top users
+<?php
+/**
+ * Module to display the top users by land
+ */
 require_once 'includes/bootstrap.php';
-  include "up_html.php";
-  if(!isset($start))
-  {
-    $start=0;
-  }
-  $order="SELECT * from km_users";
-  $order2=$db->query($order);
-  $d=0;
-  $f=0;
-  $g=1;
-  print "<center>Page: ";
-  while($order3=$order2->fetch())
-  {
-    if($f%20==0)
-    {
-      print "<A href='topland.php?start=$d'>$g</a> ";
-      $g++;
+
+if (!isset($start)) {
+    $start = 0;
+}
+
+// Build pagination
+$order = "SELECT * from km_users";
+$order2 = $db->query($order);
+$d = 0;
+$f = 0;
+$g = 1;
+$pages = [];
+while ($order3 = $order2->fetch()) {
+    if ($f % 20 == 0) {
+        $pages[] = [
+            'start' => $d,
+            'number' => $g
+        ];
+        $g++;
     }
-    $d=$d+1;
+    $d = $d + 1;
     $f++;
-  }
-  print "</center><center>Players by Rank<br>";
-  print "<table class='maintable' border='1'><tr class='mainrow'><td>ID#</td><td>Player</td><td>Land</td></tr>";
-  $topplayers=$db->prepare("SELECT * from km_users order by land DESC Limit :start, 20");
-  $topplayers->execute(['start' => (int)$start]);
-  while($topplayer3=$topplayers->fetch())
-  {
-    $topplayer3['playername']=strip_tags($topplayer3['playername']);
-    print "<tr><td>{$topplayer3['ID']}</td><td>{$topplayer3['playername']}</td><td>{$topplayer3['land']}</td></tr>";
-  }
-  print "</table>";
-include "down_html.php";
+}
+
+// Get top players for current page
+$topplayers = $db->prepare("SELECT * from km_users order by land DESC Limit :start, 20");
+$topplayers->execute(['start' => (int)$start]);
+$topPlayers = [];
+while ($topplayer3 = $topplayers->fetch()) {
+    $topPlayers[] = [
+        'ID' => $topplayer3['ID'],
+        'playername' => strip_tags($topplayer3['playername']),
+        'land' => $topplayer3['land']
+    ];
+}
+
+// Prepare template data
+$templateData = [
+    'pages' => $pages,
+    'topPlayers' => $topPlayers
+];
+
+// Render template
+$template = TemplateEngine::getInstance();
+$template->display('pages/topland.latte', $templateData);
 ?>
 
 

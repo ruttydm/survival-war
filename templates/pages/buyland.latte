@@ -1,0 +1,22 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<table class='maintable'><tr class='headline'><td><center>Buy Land</center></td></tr>
+<tr class='mainrow'><td>Land Costs $500 per acre(very expensive).<br>
+<form action='' method='post'>
+<input type='text' placeholder='Arces to buy' name='landacres' class='inline_text_inp' style='width:150px;' >&nbsp;
+<input type='submit' name='submit' value='buy' class='RedButton' style='width:93px'></form></td></tr></table><br><br>
+<td valign='top'>
+
+{if $resultMessage}
+<center>
+<table class='maintable'>
+<tr class='headline'><td><center>Buy Land</center></td></tr>
+<tr class='mainrow'><td>
+{$resultMessage|noescape}
+</td></tr></table>
+
+<font size='1'>Script Produced by © <A href='http://www.chipmunk-scripts.com'>Chipmunk Scripts</a></font>
+</center>
+{/if}
+{/block}

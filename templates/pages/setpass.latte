@@ -1,0 +1,31 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+{if $loggedIn}
+	{if $message}
+		<div style='margin: 20px;'>
+			{$message|noescape}
+		</div>
+	{elseif $showForm}
+		<table class='maintable'>
+		<tr class='headline'><td><center>Change Password</center></td></tr>
+		<tr class='mainrow'><td>
+		<form action='' method='post'>
+		<div style='padding: 20px;'>
+		<label for='password'>Type new password:</label><br>
+		<input type='password' name='password' id='password' size='20' minlength='6' required><br><br>
+		<small>Password must be at least 6 characters long</small><br><br>
+		<input type='submit' name='submit' value='Change Password' class='RedButton'>
+		</div>
+		</form>
+		</td></tr></table><br><br>
+	{/if}
+{else}
+	<table class='maintable'>
+	<tr class='headline'><td><center>Access Denied</center></td></tr>
+	<tr class='mainrow'><td><center>
+	You are not logged in.<br><br>
+	<a href='login.php'>Click here to login</a>
+	</center></td></tr></table>
+{/if}
+{/block}

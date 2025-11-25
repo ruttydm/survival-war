@@ -1,0 +1,17 @@
+{layout '../layouts/admin.latte'}
+{block content}
+All users listed in ABC order
+<table border='1' bordercolor='white' bgcolor='#e1e1e1'>
+<tr><td>Username</td><td>E-mail</td><td>Delete</td></tr>
+{foreach $users as $user}
+<tr><td>{$user['playername']|escapeHtml}</td><td>{$user['email']|escapeHtml}</td><td><a href='manageuser.php?ID={$user['ID']|escapeHtml}'>Delete</a></td></tr>
+{/foreach}
+</table>
+</td></tr></table>
+</center>
+
+Page:
+{foreach $pages as $pageNum => $start}
+<a href='manageuser.php?start={$start|escapeHtml}'>{$pageNum|escapeHtml}</a>
+{/foreach}
+{/block}

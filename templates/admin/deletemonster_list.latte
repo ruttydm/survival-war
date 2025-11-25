@@ -1,0 +1,16 @@
+{layout '../layouts/admin.latte'}
+{block content}
+<table border='1' bordercolor='white' bgcolor='#e1e1e1'>
+<tr><td>Monster name</td><td>Skill Points</td><td>Points if killed</td><td>Energy cost</td><td>Goldworth</td><td>Delete?</td></tr>
+{foreach $monsters as $monster}
+<tr>
+<td>{$monster['name']|escapeHtml}</td>
+<td>{$monster['skill']|escapeHtml}</td>
+<td>{$monster['pointsifkilled']|escapeHtml}</td>
+<td>{$monster['energycost']|escapeHtml}</td>
+<td>{$monster['goldworth']|escapeHtml}</td>
+<td><a href='deletemonster.php?ID={$monster['ID']|escapeHtml}'>Delete</a></td>
+</tr>
+{/foreach}
+</table>
+{/block}

@@ -1,0 +1,27 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<table class='maintable'><tr class='headline'><td><center>Buy army Training Pts</center></td></tr>
+<tr class='mainrow'><td>
+Each science point Cost 35 gold.<br>
+{if $hasLand}
+You have: {$currentScience|escapeHtml} pts ({$sciencePercent|escapeHtml} % more power.)
+{else}
+Science not applicable due to lack of land.
+{/if}
+<form action='' method='post'>
+<input type='text' name='scipts' size='6' class='inline_text_inp' style='width:75px;'><br>
+<input type='submit' name='submit' value='submit' class='RedButton' style='width:93px'></form>
+</td></tr></table>
+</td>
+
+{if $resultMessage}
+<br><center>
+<table class='maintable'>
+<tr class='headline'><td><center>Buy Science</center></td></tr>
+<tr class='mainrow'><td>
+{$resultMessage|noescape}
+</td></tr></table>
+</center>
+{/if}
+{/block}

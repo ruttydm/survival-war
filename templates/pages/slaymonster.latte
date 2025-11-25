@@ -1,0 +1,23 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+{if $resultMessage}
+{$resultMessage|noescape}
+{/if}
+
+<table class='maintable'>
+<tr class='headline'><td><center>Select Monster to Slay</center></td></tr>
+<tr class='mainrow'><td>
+<form method='post' action=''>
+
+{foreach $monsters as $monster}
+<img src='{$monster['image']|escapeHtml}' height='100'><br>
+<INPUT TYPE = 'radio' NAME = 'monstername' VALUE = {$monster['name']|escapeHtml} CHECKED><B>{$monster['name']|escapeHtml}</B><br>
+<p>{$monster['chance']|escapeHtml}% chance,
+reward:{$monster['goldworth']|escapeHtml} gold and skillpoints, you lose:{$monster['energycost']|escapeHtml}% energy</p><hr>
+{/foreach}
+
+<br>
+<input type='submit' name='submit' value='Hunt Animal'></form>
+</td></tr></table><br>
+{/block}

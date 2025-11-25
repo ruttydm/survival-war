@@ -1,0 +1,75 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<link rel="stylesheet" href="../style.css" type="text/css">
+
+{if $isLoggedIn}
+    <p align='right'>
+    <center>
+    <table class='maintable'>
+        <tr class='headline'>
+            <td colspan='2'><center>Navigation</center></td>
+        </tr>
+        <tr class='mainrow'>
+            <td>
+                <A href='../index.php'>Kill Monster Main</a>--
+                <A href='index.php'>Forum Main</a>--
+                <A href='forum.php?ID={$forumID|escapeHtml}'>{$forumName|escapeHtml}</a>
+            </td>
+            <td>
+                <p align='right'>
+                    <A href='post.php?forumid={$forumID|escapeHtml}'>Post</a>--
+                    <A href='reply.php?forumid={$forumID|escapeHtml}&ID={$messageID|escapeHtml}'>Reply</a>
+                </p>
+            </td>
+        </tr>
+    </table><br><br>
+
+    <table class='maintable'>
+        <tr class='headline'>
+            <td width=25%>Author</td>
+            <td width=75%><center>Post</center></td>
+        </tr>
+        <tr class='mainrow'>
+            <td width=25%>
+                <b>{$mainMessage['playername']|escapeHtml}</b><br>
+                {if $mainMessage['isAdmin']}
+                    Administrator(Lord and Master)
+                {else}
+                    Member
+                {/if}
+            </td>
+            <td width=75%>
+                Last replied to on {$mainMessage['realtime']|escapeHtml}<br>
+                {if $mainMessage['canEdit']}
+                    <A href='edit.php?ID={$mainMessage['msgid']|escapeHtml}'>Edit</a>-
+                    <A href='delete.php?ID={$mainMessage['msgid']|escapeHtml}'>Delete</a><br>
+                {/if}
+                <hr>{$mainMessage['message']|noescape}
+            </td>
+        </tr>
+        {foreach $replies as $reply}
+        <tr class='mainrow'>
+            <td width=25%>
+                <b>{$reply['playername']|escapeHtml}</b><br>
+                {if $reply['isAdmin']}
+                    Administrator(Lord and Master)
+                {else}
+                    Member
+                {/if}
+            </td>
+            <td width=75%>
+                Posted on {$reply['realtime']|escapeHtml}<br>
+                {if $reply['canEdit']}
+                    <A href='edit.php?ID={$reply['msgid']|escapeHtml}'>Edit</a>-
+                    <A href='delete.php?ID={$reply['msgid']|escapeHtml}'>Delete</a>
+                {/if}
+                <hr>{$reply['message']|noescape}
+            </td>
+        </tr>
+        {/foreach}
+    </table>
+{else}
+    You are not logged in.
+{/if}
+{/block}

@@ -1,0 +1,11 @@
+<link rel='stylesheet' href='style.css' type='text/css'>
+<table class='maintable'>
+<tr class='headline'><td><center>Registering...</center></td></tr>
+<tr class='forumrow'><td><center>
+{if $success}
+	Account activated successfully!<br><br>
+	<a href='login.php'>Click here to login</a>
+{else}
+	{$errorMessage|noescape}
+{/if}
+</center></td></tr></table>

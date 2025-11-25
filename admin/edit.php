@@ -12,14 +12,6 @@ if (!Session::isAdminLoggedIn()) {
     exit;
 }
 
-echo "<center><h3>Kill Monster Admin</h3></center><br>";
-echo "<center>";
-echo "<table border='0' width='70%' cellspacing='20'>";
-echo "<tr><td width='25%' valign='top'>";
-include 'left.php';
-echo "</td>";
-echo "<td valign='top' width='75%'>";
-
 if (isset($_POST['submit'])) {
     // Update forum
     $ID = $_POST['ID'] ?? null;
@@ -27,7 +19,7 @@ if (isset($_POST['submit'])) {
     $description = Validator::sanitizeString($_POST['description'] ?? '', 500);
 
     if (strlen($title) < 1) {
-        echo "You did not enter a title.";
+        $message = "You did not enter a title.";
     } else {
         try {
             $stmt = $db->prepare("UPDATE km_forums SET forumname = :title, descrip = :description WHERE forumID = :id");
@@ -36,12 +28,16 @@ if (isset($_POST['submit'])) {
                 'description' => $description,
                 'id' => $ID
             ]);
-            echo "Forum updated.";
+            $message = "Forum updated.";
         } catch (PDOException $e) {
             error_log("Error updating forum: " . $e->getMessage());
-            echo "Error updating forum. Please try again.";
+            $message = "Error updating forum. Please try again.";
         }
     }
+
+    $latte->render(__DIR__ . '/../templates/admin/edit_result.latte', [
+        'message' => $message
+    ]);
 } else {
     // Show edit form
     $ID = $_GET['ID'] ?? null;
@@ -53,27 +49,23 @@ if (isset($_POST['submit'])) {
             $forum = $stmt->fetch();
 
             if ($forum) {
-                $forumname = htmlspecialchars($forum['forumname']);
-                $descrip = htmlspecialchars($forum['descrip']);
-
-                echo "<form action='edit.php' method='post'>";
-                echo "<input type='hidden' name='ID' value='" . htmlspecialchars($ID) . "'>";
-                echo "Title:<br>";
-                echo "<input type='text' name='title' size='20' value='$forumname'><br>";
-                echo "Description:<br>";
-                echo "<textarea name='description' rows='5' cols='40'>$descrip</textarea><br>";
-                echo "<input type='submit' name='submit' value='submit'></form>";
+                $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+                    'forum' => $forum
+                ]);
             } else {
-                echo "Forum not found.";
+                $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+                    'error' => "Forum not found."
+                ]);
             }
         } catch (PDOException $e) {
             error_log("Error fetching forum: " . $e->getMessage());
-            echo "Error loading forum. Please try again.";
+            $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+                'error' => "Error loading forum. Please try again."
+            ]);
         }
     } else {
-        echo "No forum ID specified.";
+        $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+            'error' => "No forum ID specified."
+        ]);
     }
 }
-
-echo "</td></tr></table>";
-echo "</center>";

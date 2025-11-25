@@ -1,0 +1,18 @@
+{layout '../layouts/admin.latte'}
+{block content}
+{if isset($error)}
+{$error|escapeHtml}
+{else}
+<table border='1' bordercolor='white' bgcolor='#e1e1e1'>
+<tr><td>Forum name</td><td>Forum Description</td><td>Edit</td><td>Delete</td></tr>
+{foreach $forums as $forum}
+<tr>
+<td>{$forum['forumname']|escapeHtml}</td>
+<td>{$forum['descrip']|escapeHtml}</td>
+<td><a href='edit.php?ID={$forum['forumID']|escapeHtml}'>Edit</a></td>
+<td><a href='delete.php?ID={$forum['forumID']|escapeHtml}'>Delete</a></td>
+</tr>
+{/foreach}
+</table>
+{/if}
+{/block}

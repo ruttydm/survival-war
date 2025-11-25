@@ -14,14 +14,6 @@ if (!Session::isAdminLoggedIn()) {
 
 if (isset($_POST['submit'])) {
     // Process form submission
-    echo "<center><h3>Kill Monster Admin</h3></center><br>";
-    echo "<center>";
-    echo "<table border='0' width='70%' cellspacing='20'>";
-    echo "<tr><td width='25%' valign='top'>";
-    include 'left.php';
-    echo "</td>";
-    echo "<td valign='top' width='75%'>";
-
     $image = Validator::sanitizeString($_POST['image'] ?? '', 255);
     $monstername = Validator::sanitizeString($_POST['monstername'] ?? '', 100);
     $energycost = (int)($_POST['energycost'] ?? 0);
@@ -36,7 +28,7 @@ if (isset($_POST['submit'])) {
         $existingMonster = $stmt->fetch();
 
         if ($existingMonster) {
-            echo "Sorry there is already a monster of that name";
+            $message = "Sorry there is already a monster of that name";
         } else {
             // Create new monster (fixed SQL syntax - added missing comma)
             $stmt = $db->prepare("INSERT INTO km_monsters (name, skill, pointsifkilled, goldworth, energycost, image)
@@ -49,40 +41,17 @@ if (isset($_POST['submit'])) {
                 'energycost' => $energycost,
                 'image' => $image
             ]);
-            echo "Monster created successfully<br>";
+            $message = "Monster created successfully<br>";
         }
     } catch (PDOException $e) {
         error_log("Error creating monster: " . $e->getMessage());
-        echo "Error creating monster. Please try again.";
+        $message = "Error creating monster. Please try again.";
     }
 
-    echo "</td></tr></table>";
-    echo "</center>";
+    $latte->render(__DIR__ . '/../templates/admin/addmonster_result.latte', [
+        'message' => $message
+    ]);
 } else {
     // Show form
-    echo "<center><h3>Kill Monster Admin</h3></center><br>";
-    echo "<center>";
-    echo "<table border='0' width='70%' cellspacing='20'>";
-    echo "<tr><td width='25%' valign='top'>";
-    include 'left.php';
-    echo "</td>";
-    echo "<td valign='top' width='75%'>";
-    echo "In creating a monster, you will specify the monster's name, skill points if the monster has, and skill points gained if they monster is killed, only integers please, otherwise it will round down<br>";
-    echo "<form action='addmonster.php' method='post'>";
-    echo "Monster's name:<br>";
-    echo "<input type='text' name='monstername' size='15'><br>";
-    echo "Monster's skill points:<br>";
-    echo "<input type='text' name='skillpts' size='6'><br>";
-    echo "Image:<br>";
-    echo "<input type='text' name='image'><br>";
-    echo "Skill points gained by players if killed:<br>";
-    echo "<input type='text' name='killpts' size='6'><br>";
-    echo "Energy losed by if killed:<br>";
-    echo "<input type='text' name='energycost' size='6'><br>";
-    echo "Gold if killed:<br>";
-    echo "<input type='text' name='goldpts' size='6'><br>";
-    echo "<input type='submit' name='submit' value='Create Monster'>";
-    echo "</form>";
-    echo "</td></tr></table>";
-    echo "</center>";
+    $latte->render(__DIR__ . '/../templates/admin/addmonster_form.latte');
 }

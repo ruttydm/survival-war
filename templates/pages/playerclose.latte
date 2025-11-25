@@ -1,0 +1,19 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+{if $loggedIn}
+	<center>Players close to you in rank, your name is in red
+	<table class='maintable' border='1'><tr class='mainrow'>
+	<td>Player ID</td><td>Playername</td><td>Skillpts</td><td>Dead?</td></tr>
+	{foreach $players as $player}
+		{if $player['isCurrentPlayer']}
+			<tr><td><font color='red'>{$player['ID']}</font></td><td><font color='red'>{$player['playername']}</font></td><td><font color='red'>{$player['skillpts']}</font></td><td>{$player['dead']}</td></tr>
+		{else}
+			<tr><td>{$player['ID']}</td><td>{$player['playername']}</td><td>{$player['skillpts']}</td><td>{$player['dead']}</td></tr>
+		{/if}
+	{/foreach}
+	</table>
+{else}
+	Not Logged in
+{/if}
+{/block}

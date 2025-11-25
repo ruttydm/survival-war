@@ -1,0 +1,29 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+{if $attackMessage}
+{$attackMessage|noescape}<br><br>
+{/if}
+
+</td></tr></table><br><br>
+
+<table class='maintable'>
+<tr class='headline'><td colspan='4'><center>Battle records</center></td></tr>
+<tr class='mainrow'>
+  <td>Attacker ID</td>
+  <td>Attacker name</td>
+  <td>Result</td>
+  <td>Land lost</td>
+</tr>
+
+{foreach $battleRecords as $record}
+<tr class='mainrow'>
+  <td>{$record['attid']|escapeHtml}</td>
+  <td>{$record['attname']|escapeHtml}</td>
+  <td>{$record['result']|escapeHtml}</td>
+  <td>{$record['landlost']|escapeHtml}</td>
+</tr>
+{/foreach}
+
+</table><br><br>
+{/block}

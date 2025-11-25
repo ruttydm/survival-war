@@ -233,3 +233,4 @@ logs/*.txt
 # Backups
 *.backup
 *.bak.php
+temp/

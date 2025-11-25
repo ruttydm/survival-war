@@ -1,0 +1,29 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<link rel="stylesheet" href="../style.css" type="text/css">
+
+{if $isLoggedIn}
+    <center>
+    <table class='maintable'>
+        <tr class='headline'>
+            <td><center>Delete a Message</center></td>
+        </tr>
+        <tr class='mainrow'>
+            <td>
+                {if isset($success)}
+                    Message Deleted, please go back to the <A href='index.php'>Forum</a>
+                {elseif $showForm}
+                    <form action='delete.php' method='post'>
+                        <input type='hidden' name='msgid' value='{$messageID|escapeHtml}'>
+                        Are you sure you want to delete this message?<br>
+                        <input type='submit' name='submit' value='submit'>
+                    </form>
+                {/if}
+            </td>
+        </tr>
+    </table>
+{else}
+    You are not logged in.
+{/if}
+{/block}

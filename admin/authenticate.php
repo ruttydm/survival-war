@@ -75,7 +75,8 @@ window.location.href = 'index.php';
 
     // If we got here, authentication failed
     if (isset($error)) {
-        print $error;
+        $latte->render(__DIR__ . '/../templates/admin/authenticate.latte', [
+            'error' => $error
+        ]);
     }
 }
-?>

@@ -8,7 +8,14 @@
 
 require_once 'includes/bootstrap.php';
 
+$templateData = [
+    'loggedIn' => false,
+    'revived' => false
+];
+
 if (isset($_SESSION['player'])) {
+    $templateData['loggedIn'] = true;
+
     if (isset($_POST['revives'])) {
         try {
             // Sanitize and validate inputs
@@ -22,14 +29,15 @@ if (isset($_SESSION['player'])) {
             $stmt = $db->prepare("UPDATE km_users SET dead = 'no' WHERE ID = :id");
             $stmt->execute(['id' => $ID]);
 
-            print "<A href='index.php'>Go back to main page</a>";
+            $templateData['revived'] = true;
         } catch (PDOException $e) {
             error_log("Revive error: " . $e->getMessage());
             die("Could not revive player. Please try again.");
         }
     }
-} else {
-    print "Not logged in";
 }
 
+// Render template
+$template = TemplateEngine::getInstance();
+$template->display('pages/revive.latte', $templateData);
 ?>

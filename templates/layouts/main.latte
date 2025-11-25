@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>{block title}Survival War{/block}</title>
+	<meta name="description" content="Survival War online!">
+	<meta name="keywords" content="browsergame, game, hunter, free, online, multyplayer, survival, apocalypse, war">
+	<meta name="author" content="Ruttydm">
+	<meta charset="UTF-8">
+	<link href="/normalize.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="/style.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	{block head}{/block}
+</head>
+
+<body>
+	<script>
+	$(function() {
+		$( "#dialog,#dialog2" ).dialog({ dialogClass: 'no-close', width: 600, height: 600});
+	});
+	</script>
+
+	<header>
+		<h1>SURVIVAL WAR</h1><h6>V 1.0 Bèta</h6>
+	</header>
+
+	<div class="menu">
+		<ul>
+		{if $isLoggedIn && $userstats}
+			<tr class='mainrow'><td><b>{$userstats['numturns']|escapeHtml} % energy</b></td></tr><br>
+			<tr class='mainrow'><td><b>skill pts: {$userstats['skillpts']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>Honor: {$userstats['honor']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>Gold: {$userstats['gold']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>Land: {$userstats['land']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>offensive army: {$userstats['offarmy']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>Defensive army: {$userstats['dffarmy']|escapeHtml}</b></td></tr><br>
+			<tr class='mainrow'><td><b>Science: {$userstats['science']|escapeHtml}</b></td></tr><br>
+
+			<li><a href='/index.php'>Home</a></li>
+			<li><a href='/attack.php'>Attack Land</a></li>
+			<li><a href='/buyarmy.php'>Buy Army</a></li>
+			<li><a href='/buyland.php'>Buy Land</a></li>
+			<li><a href='/buyscience.php'>Buy Science</a></li>
+			<li><a href='/challengeplayer.php'>Challenge Player</a></li>
+			<li><a href='/logs.php'>Logs</a></li>
+			<li><a href='/playerlist.php'>Playerlist</a></li>
+			<li><a href='/slaymonster.php'>Hunt Animal</a></li>
+			<li><a href='/forums/'>Forum</a></li>
+			<li><a href='/logout.php'>Logout</a></li>
+		{else}
+			<b>Welcome to <br>Survival War!</b>
+		{/if}
+
+		{if $player == "ruttydm"}
+			<li><a href='/admin/login.php'>Admin</a></li>
+		{/if}
+		</ul>
+	</div>
+
+	<div class="content">
+		{include content}
+	</div>
+
+	<center>Copright: Survival War | <a href="http://www.ruttydm.eu">Ruttydm</a></center>
+</body>
+</html>

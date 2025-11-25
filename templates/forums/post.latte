@@ -1,0 +1,38 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<center>
+</center><br><br>
+<link rel="stylesheet" href="../style.css" type="text/css">
+
+{if $isLoggedIn}
+    <center>
+    <table class='maintable'>
+        <tr class='headline'>
+            <td><center>Post a Message</center></td>
+        </tr>
+        <tr class='mainrow'>
+            <td>
+                {if isset($error)}
+                    {$error|escapeHtml}
+                {elseif isset($success)}
+                    Thanks for post, redirecting to main ....
+                    <META HTTP-EQUIV = 'Refresh' Content = '2; URL ={$redirectUrl|noescape}'>
+                {elseif $showForm}
+                    <form action='post.php' method='post'>
+                        <input type='hidden' name='fid' value='{$forumid|escapeHtml}'>
+                        Name: {$playername|escapeHtml}<br><br>
+                        Subject:<br>
+                        <input type='text' name='subject' size='30'><br><br>
+                        Message:<br>
+                        <textarea name='themessage' rows='6' cols='45'></textarea><br><br>
+                        <input type='submit' name='submit' value='submit'>
+                    </form>
+                {/if}
+            </td>
+        </tr>
+    </table>
+{else}
+    You are not logged in.
+{/if}
+{/block}

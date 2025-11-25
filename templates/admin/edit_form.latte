@@ -1,0 +1,14 @@
+{layout '../layouts/admin.latte'}
+{block content}
+{if isset($error)}
+{$error|escapeHtml}
+{elseif isset($forum)}
+<form action='edit.php' method='post'>
+<input type='hidden' name='ID' value='{$forum["forumID"]|escapeHtml}'>
+Title:<br>
+<input type='text' name='title' size='20' value='{$forum["forumname"]|escapeHtml}'><br>
+Description:<br>
+<textarea name='description' rows='5' cols='40'>{$forum["descrip"]|escapeHtml}</textarea><br>
+<input type='submit' name='submit' value='submit'></form>
+{/if}
+{/block}

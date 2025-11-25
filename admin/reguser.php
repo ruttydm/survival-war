@@ -7,13 +7,6 @@
  */
 
 require_once __DIR__ . '/../includes/bootstrap.php';
-?>
-<link rel="stylesheet" href="style.css" type="text/css">
-<?php
-print "<center>";
-print "<table class='maintable'>";
-print "<tr class='headline'><td><font color='white'><center>Register</center></td></tr>";
-print "<tr class='mainrow'><td><center>";
 
 try {
     // Sanitize inputs
@@ -21,14 +14,14 @@ try {
     $password = $_POST['password'] ?? '';
 
     if (empty($username) || empty($password)) {
-        print "Error: Username and password are required.";
+        $message = "Error: Username and password are required.";
     } else {
         // Check if admin user already exists
         $checkStmt = $db->prepare("SELECT id FROM km_users WHERE playername = :username AND status = '3'");
         $checkStmt->execute(['username' => $username]);
 
         if ($checkStmt->fetch()) {
-            print "Error: Admin user already exists with this username.";
+            $message = "Error: Admin user already exists with this username.";
         } else {
             // Hash password with Argon2ID
             $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
@@ -40,13 +33,14 @@ try {
                 'password' => $hashedPassword
             ]);
 
-            print "Admin registered successfully. You should probably delete the admin register files now. You can login to your admin account <a href='login.php'>Here</a>.";
+            $message = "Admin registered successfully. You should probably delete the admin register files now. You can login to your admin account <a href='login.php'>Here</a>.";
         }
     }
 } catch (PDOException $e) {
     error_log("Admin registration error: " . $e->getMessage());
-    print "Error: An error occurred during registration. Please try again.";
+    $message = "Error: An error occurred during registration. Please try again.";
 }
 
-print "</td></tr></table>";
-?>
+$latte->render(__DIR__ . '/../templates/admin/reguser.latte', [
+    'message' => $message
+]);

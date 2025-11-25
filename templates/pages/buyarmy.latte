@@ -1,0 +1,22 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+<table class='maintable'><tr class='headline'><td><center>Buy Army</center></td></tr>
+<tr class='mainrow'><td>
+Each troop Cost 75 gold and each acres can support a max of ten troops:<br>
+<form method='post' action=''>
+Offensive Units:&nbsp;<input type='text' name='off' size='6' class='inline_text_inp' style='width:75px;'><br>
+Defensive Units:&nbsp;<input type='text' name='dff' size='6' class='inline_text_inp' style='width:75px;'><br>
+<input type='submit' name='submit' value='Buy Army' class='RedButton' style='width:93px'></form>
+</td></tr></table><br><br>
+
+{if $resultMessage}
+<center>
+<table class='maintable'>
+<tr class='headline'><td><center>Buy Army</center></td></tr>
+<tr class='mainrow'><td>
+{$resultMessage|noescape}
+</td></tr></table>
+</center>
+{/if}
+{/block}

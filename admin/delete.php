@@ -12,14 +12,6 @@ if (!Session::isAdminLoggedIn()) {
     exit;
 }
 
-echo "<center><h3>Kill Monster Admin</h3></center><br>";
-echo "<center>";
-echo "<table border='0' width='70%' cellspacing='20'>";
-echo "<tr><td width='25%' valign='top'>";
-include 'left.php';
-echo "</td>";
-echo "<td valign='top' width='75%'>";
-
 if (isset($_POST['submit'])) {
     // Delete forum
     $ID = $_POST['ID'] ?? null;
@@ -28,25 +20,29 @@ if (isset($_POST['submit'])) {
         try {
             $stmt = $db->prepare("DELETE FROM km_forums WHERE forumID = :id");
             $stmt->execute(['id' => $ID]);
-            echo "Forum deleted.";
+            $message = "Forum deleted.";
         } catch (PDOException $e) {
             error_log("Error deleting forum: " . $e->getMessage());
-            echo "Error deleting forum. Please try again.";
+            $message = "Error deleting forum. Please try again.";
         }
+    } else {
+        $message = "No forum ID specified.";
     }
+
+    $latte->render(__DIR__ . '/../templates/admin/delete_result.latte', [
+        'message' => $message
+    ]);
 } else {
     // Show confirmation form
     $ID = $_GET['ID'] ?? null;
 
     if ($ID) {
-        echo "<form action='delete.php' method='post'>";
-        echo "<input type='hidden' name='ID' value='" . htmlspecialchars($ID) . "'>";
-        echo "Are you sure you want to delete this forum?<br>";
-        echo "<input type='submit' name='submit' value='Delete'></form>";
+        $latte->render(__DIR__ . '/../templates/admin/delete_confirm.latte', [
+            'ID' => $ID
+        ]);
     } else {
-        echo "No forum ID specified.";
+        $latte->render(__DIR__ . '/../templates/admin/delete_confirm.latte', [
+            'error' => "No forum ID specified."
+        ]);
     }
 }
-
-echo "</td></tr></table>";
-echo "</center>";
