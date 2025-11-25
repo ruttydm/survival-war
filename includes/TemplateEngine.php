@@ -82,7 +82,7 @@ class TemplateEngine
      */
     private function getGlobalParams(): array
     {
-        $db = Database::getInstance();
+        $db = Database::getInstance()->getConnection();
         $player = $_SESSION['player'] ?? null;
         $userstats = null;
 

@@ -13,7 +13,7 @@ if (!isset($_SESSION['player'])) {
     exit;
 }
 
-try {
+
     $player = $_SESSION['player'];
 
     // Get user stats
@@ -43,8 +43,3 @@ try {
     // Render template
     $template = TemplateEngine::getInstance();
     $template->display('pages/index.latte', $templateData);
-
-} catch (PDOException $e) {
-    error_log("Error in index.php: " . $e->getMessage());
-    echo "<p>An error occurred. Please try again later.</p>";
-}

@@ -27,8 +27,10 @@ require_once __DIR__ . '/ErrorHandler.php';
 require_once __DIR__ . '/TemplateEngine.php';
 require_once __DIR__ . '/functions.php';
 
-// Initialize error handler
-ErrorHandler::init();
+// Initialize error handler (only if Tracy is not enabled)
+if (!class_exists('Tracy\Debugger') || !Tracy\Debugger::isEnabled()) {
+    ErrorHandler::init();
+}
 
 // Start session
 Session::start();
