@@ -1,12 +1,19 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-	<form method="post" action="reguser.php">
-		Type Username Here: <input type="text" name="player" size="15" class='inline_text_inp' style='width:150px'><br>
-		Type Password Here: <input type="password" name="password" size="15" class='inline_text_inp' style='width:150px'><br>
-		Retype password: <input type="password" name="pass2" size="15" class='inline_text_inp' style='width:150px'><br>
-		Type E-mail address: <input type="text" name="email" size="20" class='inline_text_inp' style='width:150px'><br>
-		<input type="submit" value="submit" class="RedButton" style="width:80px">
+	{* Display form errors *}
+	<div n:if="$form->hasErrors()">
+		<ul class="error">
+			<li n:foreach="$form->errors as $error">{$error}</li>
+		</ul>
+	</div>
+
+	<form n:name="form">
+		Type Username Here: <input n:name="player"><br>
+		Type Password Here: <input n:name="password"><br>
+		Retype password: <input n:name="pass2"><br>
+		Type E-mail address: <input n:name="email"><br>
+		<input n:name="send">
 	</form>
 	<br>
 	<form method="post" action="login.php">

@@ -12,8 +12,15 @@ class Database {
     /**
      * Private constructor to prevent direct instantiation
      */
+    private $explorer;
+    private $netteConnection;
+
+    /**
+     * Private constructor to prevent direct instantiation
+     */
     private function __construct() {
         try {
+            // Legacy PDO Connection
             $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -23,10 +30,34 @@ class Database {
             ];
 
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+
+            // Nette Database Initialization
+            $this->initNetteDatabase($dsn);
+
         } catch (PDOException $e) {
             error_log("Database connection failed: " . $e->getMessage());
             die("Could not connect to database. Please try again later.");
         }
+    }
+
+    /**
+     * Initialize Nette Database
+     */
+    private function initNetteDatabase($dsn) {
+        // Create cache directory if it doesn't exist
+        $cacheDir = __DIR__ . '/../temp/cache';
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+
+        $storage = new Nette\Caching\Storages\FileStorage($cacheDir);
+        $this->netteConnection = new Nette\Database\Connection($dsn, DB_USER, DB_PASS);
+        
+        // Setup Structure and Conventions
+        $structure = new Nette\Database\Structure($this->netteConnection, $storage);
+        $conventions = new Nette\Database\Conventions\DiscoveredConventions($structure);
+        
+        $this->explorer = new Nette\Database\Explorer($this->netteConnection, $structure, $conventions, $storage);
     }
 
     /**
@@ -48,6 +79,15 @@ class Database {
      */
     public function getConnection() {
         return $this->pdo;
+    }
+
+    /**
+     * Get Nette Explorer
+     * 
+     * @return Nette\Database\Explorer
+     */
+    public function getExplorer() {
+        return $this->explorer;
     }
 
     /**
