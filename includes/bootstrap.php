@@ -9,6 +9,10 @@
 // Load Composer autoloader if available
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
+    // Enable Nette Tracy for debugging
+    if (class_exists('Tracy\Debugger')) {
+        Tracy\Debugger::enable();
+    }
 }
 
 // Load configuration
