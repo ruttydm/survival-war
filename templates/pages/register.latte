@@ -1,22 +1,33 @@
 {layout '../layouts/main.latte'}
 
 {block content}
+	<h2 class="mb-4">Register</h2>
+
 	{* Display form errors *}
-	<div n:if="$form->hasErrors()">
-		<ul class="error">
+	<div n:if="$form->hasErrors()" class="alert alert-danger">
+		<ul class="mb-0">
 			<li n:foreach="$form->errors as $error">{$error}</li>
 		</ul>
 	</div>
 
 	<form n:name="form">
-		Type Username Here: <input n:name="player"><br>
-		Type Password Here: <input n:name="password"><br>
-		Retype password: <input n:name="pass2"><br>
-		Type E-mail address: <input n:name="email"><br>
-		<input n:name="send">
-	</form>
-	<br>
-	<form method="post" action="login.php">
-		<input type="submit" value="cancel" class="RedButton" style="width:80px">
+		<div class="mb-3">
+			<label n:name="player" class="form-label">Username</label>
+			<input n:name="player" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label n:name="password" class="form-label">Password</label>
+			<input n:name="password" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label n:name="pass2" class="form-label">Retype Password</label>
+			<input n:name="pass2" class="form-control">
+		</div>
+		<div class="mb-3">
+			<label n:name="email" class="form-label">E-mail Address</label>
+			<input n:name="email" class="form-control">
+		</div>
+		<button n:name="send" class="btn btn-primary">Submit</button>
+		<a href="login.php" class="btn btn-danger">Cancel</a>
 	</form>
 {/block}

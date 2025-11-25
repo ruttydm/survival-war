@@ -33,10 +33,12 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/addforum_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addforum_result.latte', [
         'message' => $message
     ]);
 } else {
     // Show form
-    $latte->render(__DIR__ . '/../templates/admin/addforum_form.latte');
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addforum_form.latte');
 }

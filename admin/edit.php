@@ -35,7 +35,8 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/edit_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/edit_result.latte', [
         'message' => $message
     ]);
 } else {
@@ -49,22 +50,26 @@ if (isset($_POST['submit'])) {
             $forum = $stmt->fetch();
 
             if ($forum) {
-                $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+                $template = TemplateEngine::getInstance();
+                $template->display('admin/edit_form.latte', [
                     'forum' => $forum
                 ]);
             } else {
-                $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+                $template = TemplateEngine::getInstance();
+                $template->display('admin/edit_form.latte', [
                     'error' => "Forum not found."
                 ]);
             }
         } catch (PDOException $e) {
             error_log("Error fetching forum: " . $e->getMessage());
-            $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+            $template = TemplateEngine::getInstance();
+            $template->display('admin/edit_form.latte', [
                 'error' => "Error loading forum. Please try again."
             ]);
         }
     } else {
-        $latte->render(__DIR__ . '/../templates/admin/edit_form.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/edit_form.latte', [
             'error' => "No forum ID specified."
         ]);
     }

@@ -1,23 +1,41 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-{if $resultMessage}
-{$resultMessage|noescape}
-{/if}
+	<h2 class="mb-4">Hunt Animal</h2>
 
-<table class='maintable'>
-<tr class='headline'><td><center>Select Monster to Slay</center></td></tr>
-<tr class='mainrow'><td>
-<form method='post' action=''>
+	{if $resultMessage}
+		<div class="alert alert-info mb-4">
+			{$resultMessage|noescape}
+		</div>
+	{/if}
 
-{foreach $monsters as $monster}
-<img src='{$monster['image']|escapeHtml}' height='100'><br>
-<INPUT TYPE = 'radio' NAME = 'monstername' VALUE = {$monster['name']|escapeHtml} CHECKED><B>{$monster['name']|escapeHtml}</B><br>
-<p>{$monster['chance']|escapeHtml}% chance,
-reward:{$monster['goldworth']|escapeHtml} gold and skillpoints, you lose:{$monster['energycost']|escapeHtml}% energy</p><hr>
-{/foreach}
-
-<br>
-<input type='submit' name='submit' value='Hunt Animal'></form>
-</td></tr></table><br>
+	<div class="card">
+		<div class="card-header">
+			Select Monster to Slay
+		</div>
+		<div class="card-body">
+			<form method="post" action="">
+				{foreach $monsters as $index => $monster}
+					<div class="d-flex align-items-start mb-4 pb-4 border-bottom">
+						<img src="{$monster['image']|escapeHtml}" height="100" class="me-3 rounded">
+						<div class="flex-grow-1">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="monstername" value="{$monster['name']|escapeHtml}" id="monster_{$index}" {if $index == 0}checked{/if}>
+								<label class="form-check-label" for="monster_{$index}">
+									<strong>{$monster['name']|escapeHtml}</strong>
+								</label>
+							</div>
+							<p class="mt-2 mb-0 text-muted">
+								<strong>{$monster['chance']|escapeHtml}%</strong> chance | 
+								Reward: <strong>{$monster['goldworth']|escapeHtml} gold + skillpoints</strong> | 
+								Energy cost: <strong>{$monster['energycost']|escapeHtml}%</strong>
+							</p>
+						</div>
+					</div>
+				{/foreach}
+				
+				<button type="submit" name="submit" class="btn btn-success">Hunt Animal</button>
+			</form>
+		</div>
+	</div>
 {/block}

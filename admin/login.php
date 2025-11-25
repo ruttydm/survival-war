@@ -7,4 +7,5 @@
 
 require_once __DIR__ . '/../includes/bootstrap.php';
 
-$latte->render(__DIR__ . '/../templates/admin/login.latte');
+$template = TemplateEngine::getInstance();
+$template->display('admin/login.latte');

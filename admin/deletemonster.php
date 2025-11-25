@@ -25,7 +25,8 @@ if ($ID) {
         $message = "Error deleting monster. Please try again.";
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/deletemonster_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/deletemonster_result.latte', [
         'message' => $message
     ]);
 } else {
@@ -34,13 +35,15 @@ if ($ID) {
         $stmt = $db->query("SELECT * FROM km_monsters ORDER BY skill ASC");
         $monsters = $stmt->fetchAll();
 
-        $latte->render(__DIR__ . '/../templates/admin/deletemonster_list.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/deletemonster_list.latte', [
             'monsters' => $monsters
         ]);
     } catch (PDOException $e) {
         error_log("Error fetching monsters: " . $e->getMessage());
         $message = "Error loading monsters. Please try again.";
-        $latte->render(__DIR__ . '/../templates/admin/deletemonster_result.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/deletemonster_result.latte', [
             'message' => $message
         ]);
     }

@@ -8,4 +8,5 @@
 
 require_once __DIR__ . '/../includes/bootstrap.php';
 
-$latte->render(__DIR__ . '/../templates/admin/register.latte');
+$template = TemplateEngine::getInstance();
+$template->display('admin/register.latte');

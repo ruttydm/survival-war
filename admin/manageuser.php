@@ -20,10 +20,12 @@ if ($ID) {
         $stmt = $db->prepare("DELETE FROM km_users WHERE ID = :id");
         $stmt->execute(['id' => $ID]);
 
-        $latte->render(__DIR__ . '/../templates/admin/manageuser_delete.latte');
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/manageuser_delete.latte');
     } catch (PDOException $e) {
         error_log("Error deleting user: " . $e->getMessage());
-        $latte->render(__DIR__ . '/../templates/admin/manageuser_delete.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/manageuser_delete.latte', [
             'error' => "Error deleting user. Please try again."
         ]);
     }
@@ -50,13 +52,15 @@ if ($ID) {
             $pageNum++;
         }
 
-        $latte->render(__DIR__ . '/../templates/admin/manageuser_list.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/manageuser_list.latte', [
             'users' => $users,
             'pages' => $pages
         ]);
     } catch (PDOException $e) {
         error_log("Error fetching users: " . $e->getMessage());
-        $latte->render(__DIR__ . '/../templates/admin/manageuser_delete.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/manageuser_delete.latte', [
             'error' => "Error loading users. Please try again."
         ]);
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Dashboard
+ * Admin Panel Index
  *
  * Main admin panel landing page
  */
@@ -12,4 +12,5 @@ if (!Session::isAdminLoggedIn()) {
     exit;
 }
 
-$latte->render(__DIR__ . '/../templates/admin/index.latte');
+$template = TemplateEngine::getInstance();
+$template->display('admin/index.latte');

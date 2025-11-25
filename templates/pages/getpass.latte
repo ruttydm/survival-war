@@ -1,12 +1,20 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-{if $message}
-	{$message|noescape}
-{else}
-	<form action='' method='post'>
-	Enter e-mail address: <input type='email' name='getpassword' size='20' class='inline_text_inp' style='width:180px'>&nbsp;
-	<input type='submit' name='submit' value='submit' class='RedButton' style='width:80px'></form>&nbsp;
-	<form action='login.php' method='post'><input type='submit' name='submit' value='cancel' class='RedButton' style='width:80px'></form>
-{/if}
+	<h2 class="mb-4">Recover Password</h2>
+
+	{if $message}
+		<div class="alert alert-info">
+			{$message|noescape}
+		</div>
+	{else}
+		<form action="" method="post">
+			<div class="mb-3">
+				<label for="getpassword" class="form-label">Enter E-mail Address</label>
+				<input type="email" class="form-control" id="getpassword" name="getpassword" required>
+			</div>
+			<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+			<a href="login.php" class="btn btn-danger">Cancel</a>
+		</form>
+	{/if}
 {/block}

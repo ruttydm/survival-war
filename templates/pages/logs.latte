@@ -1,29 +1,39 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-{if $attackMessage}
-{$attackMessage|noescape}<br><br>
-{/if}
+	<h2 class="mb-4">Battle Logs</h2>
 
-</td></tr></table><br><br>
+	{if $attackMessage}
+		<div class="alert alert-info mb-4">
+			{$attackMessage|noescape}
+		</div>
+	{/if}
 
-<table class='maintable'>
-<tr class='headline'><td colspan='4'><center>Battle records</center></td></tr>
-<tr class='mainrow'>
-  <td>Attacker ID</td>
-  <td>Attacker name</td>
-  <td>Result</td>
-  <td>Land lost</td>
-</tr>
-
-{foreach $battleRecords as $record}
-<tr class='mainrow'>
-  <td>{$record['attid']|escapeHtml}</td>
-  <td>{$record['attname']|escapeHtml}</td>
-  <td>{$record['result']|escapeHtml}</td>
-  <td>{$record['landlost']|escapeHtml}</td>
-</tr>
-{/foreach}
-
-</table><br><br>
+	<div class="card">
+		<div class="card-header">
+			Battle Records
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped table-hover mb-0">
+				<thead>
+					<tr>
+						<th>Attacker ID</th>
+						<th>Attacker Name</th>
+						<th>Result</th>
+						<th>Land Lost</th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach $battleRecords as $record}
+					<tr>
+						<td>{$record['attid']|escapeHtml}</td>
+						<td>{$record['attname']|escapeHtml}</td>
+						<td>{$record['result']|escapeHtml}</td>
+						<td>{$record['landlost']|escapeHtml}</td>
+					</tr>
+					{/foreach}
+				</tbody>
+			</table>
+		</div>
+	</div>
 {/block}

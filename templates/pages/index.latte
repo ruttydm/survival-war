@@ -2,29 +2,64 @@
 
 {block content}
 	{if $isDead}
-		<p class='td_width_bold'>You have been slain by {$killer|escapeHtml}</p>
-		<form action='revive.php' method='post'>
-			<input type='hidden' name='ID' value='{$userID|escapeHtml}'>
-			<input type='submit' name='revives' value='revive' class='RedButton' style='width:80px'>
-		</form>
-		</div><br><br><br>
+		<div class="alert alert-danger">
+			<p class="mb-3">You have been slain by <strong>{$killer|escapeHtml}</strong></p>
+			<form action="revive.php" method="post">
+				<input type="hidden" name="ID" value="{$userID|escapeHtml}">
+				<button type="submit" name="revives" class="btn btn-danger">Revive</button>
+			</form>
+		</div>
 	{else}
-		<p>Welcome, {$player|escapeHtml} into the world of survivors!</p>
-		<table class='maintable'>
-			<tr class='headline'><td><center>Statistics</center></td></tr>
-			<tr class='mainrow'><td><b>Turns: {$stats['numturns']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>skill pts: {$stats['skillpts']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>Honor: {$stats['honor']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>Gold: {$stats['gold']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>Land: {$stats['land']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>offensive army: {$stats['offarmy']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>Defensive army: {$stats['dffarmy']|escapeHtml}</b></td></tr>
-			<tr class='mainrow'><td><b>training pts: {$stats['science']|escapeHtml}</b></td></tr>
-		</table><br>
+		<h2 class="mb-4">Welcome, {$player|escapeHtml}!</h2>
+		<p class="lead">Welcome to the world of survivors!</p>
 
-		<table class='maintable'>
-			<tr class='mainrow'><td><tr class='headline'><td><center>User settings:</center></td></tr>
-			<tr class="mainrow"><td><br><br><b><a href='../setpass.php'>Change password</a></b><br><br></td></tr>
-		</table>
+		<div class="card mb-4">
+			<div class="card-header bg-primary text-white">
+				<h5 class="mb-0">Statistics</h5>
+			</div>
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Turns</span>
+					<strong>{$stats['numturns']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Skill Points</span>
+					<strong>{$stats['skillpts']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Honor</span>
+					<strong>{$stats['honor']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Gold</span>
+					<strong>{$stats['gold']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Land</span>
+					<strong>{$stats['land']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Offensive Army</span>
+					<strong>{$stats['offarmy']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Defensive Army</span>
+					<strong>{$stats['dffarmy']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Science</span>
+					<strong>{$stats['science']|escapeHtml}</strong>
+				</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<div class="card-header bg-secondary text-white">
+				<h5 class="mb-0">User Settings</h5>
+			</div>
+			<div class="card-body">
+				<a href="setpass.php" class="btn btn-outline-primary">Change Password</a>
+			</div>
+		</div>
 	{/if}
 {/block}

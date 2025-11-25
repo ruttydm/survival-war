@@ -1,22 +1,32 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-<table class='maintable'><tr class='headline'><td><center>Buy Land</center></td></tr>
-<tr class='mainrow'><td>Land Costs $500 per acre(very expensive).<br>
-<form action='' method='post'>
-<input type='text' placeholder='Arces to buy' name='landacres' class='inline_text_inp' style='width:150px;' >&nbsp;
-<input type='submit' name='submit' value='buy' class='RedButton' style='width:93px'></form></td></tr></table><br><br>
-<td valign='top'>
+	<h2 class="mb-4">Buy Land</h2>
 
-{if $resultMessage}
-<center>
-<table class='maintable'>
-<tr class='headline'><td><center>Buy Land</center></td></tr>
-<tr class='mainrow'><td>
-{$resultMessage|noescape}
-</td></tr></table>
+	<div class="card mb-4">
+		<div class="card-header">
+			Purchase Land
+		</div>
+		<div class="card-body">
+			<p>Land costs $500 per acre (very expensive).</p>
+			<form action="" method="post">
+				<div class="mb-3">
+					<label for="landacres" class="form-label">Acres to Buy</label>
+					<input type="number" name="landacres" id="landacres" class="form-control" placeholder="Acres to buy" min="0" required>
+				</div>
+				<button type="submit" name="submit" class="btn btn-primary">Buy</button>
+			</form>
+		</div>
+	</div>
 
-<font size='1'>Script Produced by © <A href='http://www.chipmunk-scripts.com'>Chipmunk Scripts</a></font>
-</center>
-{/if}
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
 {/block}

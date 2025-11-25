@@ -1,68 +1,86 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-<center>
+	{if $isLoggedIn}
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<div>
+				<a href="../index.php" class="btn btn-sm btn-outline-secondary">Back to Main Game</a>
+				<a href="index.php" class="btn btn-sm btn-outline-secondary">Back to Forum Index</a>
+			</div>
+			<a href="post.php?forumid={$forumID|escapeHtml}" class="btn btn-sm btn-primary">New Thread</a>
+		</div>
 
-<link rel="stylesheet" href="../style.css" type="text/css">
+		<div class="card">
+			<div class="card-header">
+				<h5 class="mb-0">Topics</h5>
+			</div>
+			<div class="table-responsive">
+				<table class="table table-hover mb-0">
+					<thead class="table-light">
+						<tr>
+							<th style="width: 40px;"></th>
+							<th>Topic</th>
+							<th style="width: 150px;">Topic Starter</th>
+							<th class="text-center" style="width: 80px;">Replies</th>
+							<th style="width: 150px;">Last Post</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach $topics as $topic}
+						<tr>
+							<td class="text-center">
+								{if $topic['hasNewPosts']}
+									<img src="../images/yesnewposts.gif" height="20" alt="New posts">
+								{else}
+									<img src="../images/topic.gif" height="20" alt="No new posts">
+								{/if}
+							</td>
+							<td>
+								<a href="messages.php?forumID={$forumID|escapeHtml}&ID={$topic['msgid']|escapeHtml}" class="text-decoration-none">{$topic['subject']|escapeHtml}</a>
+							</td>
+							<td>{$topic['playername']|escapeHtml}</td>
+							<td class="text-center">{$topic['numreplies']|escapeHtml}</td>
+							<td><small>{$topic['realtime']|escapeHtml}</small></td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
 
-{if $isLoggedIn}
-    <table border='0' width=90%>
-        <tr>
-            <td><p align='left'><A href='../index.php'>Back to main game</a>-<A href='index.php'>Back to forum index</a></p></td>
-            <td colspan='3'><p align='right'><A href='post.php?forumid={$forumID|escapeHtml}'><b>New Thread</b></a></p></td>
-        </tr>
-    </table><br>
-
-    <table class='maintable'>
-        <tr class='headline'>
-            <td colspan='2'>Topic</td>
-            <td>Topic Starter</td>
-            <td>Replies</td>
-            <td>Last Post</td>
-        </tr>
-        {foreach $topics as $topic}
-        <tr class='mainrow'>
-            <td>
-                {if $topic['hasNewPosts']}
-                    <img src='../images/yesnewposts.gif' border='0'>
-                {else}
-                    <img src='../images/topic.gif' border='0'>
-                {/if}
-            </td>
-            <td>
-                <A href='messages.php?forumID={$forumID|escapeHtml}&ID={$topic['msgid']|escapeHtml}'>{$topic['subject']|escapeHtml}</a>
-            </td>
-            <td>{$topic['playername']|escapeHtml}</td>
-            <td>{$topic['numreplies']|escapeHtml}</td>
-            <td>{$topic['realtime']|escapeHtml}</td>
-        </tr>
-        {/foreach}
-    </table><br><br>
-
-    <table border='0' width=90%>
-        <tr>
-            <td class='regrow'>
-                <p align='right'>
-                    Page:
-                    {if $pagination['showPrev']}
-                        <A href='forum.php?ID={$forumID|escapeHtml}'>First</a>&nbsp&nbsp;&nbsp;
-                        <A href='forum.php?ID={$forumID|escapeHtml}&start={$pagination['prev']|escapeHtml}'><<</a>&nbsp;
-                    {/if}
-                    {foreach $pagination['pages'] as $page}
-                        <A href='forum.php?ID={$forumID|escapeHtml}&start={$page['start']|escapeHtml}'>{$page['number']|escapeHtml}</a>
-                    {/foreach}
-                    {if $pagination['showNext']}
-                        &nbsp;<A href='index.php?ID={$forumID|escapeHtml}&start={$pagination['next']|escapeHtml}'>>></a>&nbsp;&nbsp;&nbsp;
-                        <A href='index.php?ID={$forumID|escapeHtml}&start={$pagination['last']|escapeHtml}'>Last</a>
-                    {/if}
-                </p>
-            </td>
-        </tr>
-    </table>
-{else}
-    <table class='maintable'>
-        <tr class='headline'><td><center>Not logged in</center></td></tr>
-        <tr class='mainrow'><td>You are not logged in, please <A href='../login.php'>Login</a></td></tr>
-    </table>
-{/if}
+		{if $pagination['pages']}
+			<nav aria-label="Topics pagination" class="mt-3">
+				<ul class="pagination justify-content-end">
+					{if $pagination['showPrev']}
+						<li class="page-item">
+							<a class="page-link" href="forum.php?ID={$forumID|escapeHtml}">First</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="forum.php?ID={$forumID|escapeHtml}&start={$pagination['prev']|escapeHtml}">Previous</a>
+						</li>
+					{/if}
+					{foreach $pagination['pages'] as $page}
+						<li class="page-item">
+							<a class="page-link" href="forum.php?ID={$forumID|escapeHtml}&start={$page['start']|escapeHtml}">{$page['number']|escapeHtml}</a>
+						</li>
+					{/foreach}
+					{if $pagination['showNext']}
+						<li class="page-item">
+							<a class="page-link" href="forum.php?ID={$forumID|escapeHtml}&start={$pagination['next']|escapeHtml}">Next</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="forum.php?ID={$forumID|escapeHtml}&start={$pagination['last']|escapeHtml}">Last</a>
+						</li>
+					{/if}
+				</ul>
+			</nav>
+		{/if}
+	{else}
+		<div class="alert alert-warning">
+			<h4 class="alert-heading">Not Logged In</h4>
+			<p>You are not logged in.</p>
+			<hr>
+			<a href="../login.php" class="btn btn-primary">Login</a>
+		</div>
+	{/if}
 {/block}

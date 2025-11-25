@@ -41,6 +41,7 @@ try {
     $message = "Error: An error occurred during registration. Please try again.";
 }
 
-$latte->render(__DIR__ . '/../templates/admin/reguser.latte', [
+$template = TemplateEngine::getInstance();
+$template->display('admin/reguser.latte', [
     'message' => $message
 ]);

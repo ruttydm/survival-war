@@ -2,25 +2,29 @@
 
 {block content}
 	{if $loginError}
-		<div class='error-message' style='color: red; padding: 10px; margin: 10px 0; border: 1px solid red; background-color: #ffeeee;'>
+		<div class="alert alert-danger" role="alert">
 			{$loginError|escapeHtml}
 		</div>
 	{/if}
 
-	<form method='POST' action='authenticate.php'>
-		<input placeholder="Username" type='text' name='player' size='15' class='inline_text_inp' style='width:150px'><br>
-		<input placeholder="Password" type='password' name='password' size='15' mask='x' style='width:150px'><br>
-		<input type='submit' value='Login' name='submit' class='RedButton' style='width:80px'>
-	</form>
-	<br><br><br><br>
+	<h2 class="mb-4">Login</h2>
 
-	<br><br>
-
-	<form action='getpass.php'>
-		<input class='RedButton' style='width:120px' type='submit' value='Get Password'>
+	<form method="POST" action="authenticate.php">
+		<div class="mb-3">
+			<label for="player" class="form-label">Username</label>
+			<input type="text" class="form-control" id="player" name="player" placeholder="Username" required>
+		</div>
+		<div class="mb-3">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+		</div>
+		<button type="submit" class="btn btn-primary" name="submit">Login</button>
 	</form>
 
-	<form action='register.php'>
-		<input class='RedButton' style='width:120px' type='submit' value='Register'>
-	</form>
+	<hr class="my-4">
+
+	<div class="d-grid gap-2">
+		<a href="getpass.php" class="btn btn-outline-secondary">Get Password</a>
+		<a href="register.php" class="btn btn-success">Register</a>
+	</div>
 {/block}

@@ -1,11 +1,18 @@
-<link rel='stylesheet' href='style.css' type='text/css'>
-<table class='maintable'>
-<tr class='headline'><td><center>Registering...</center></td></tr>
-<tr class='forumrow'><td><center>
-{if $success}
-	Account activated successfully!<br><br>
-	<a href='login.php'>Click here to login</a>
-{else}
-	{$errorMessage|noescape}
-{/if}
-</center></td></tr></table>
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Account Activation</h2>
+
+	{if $success}
+		<div class="alert alert-success">
+			<h4 class="alert-heading">Success!</h4>
+			<p>Account activated successfully!</p>
+			<hr>
+			<a href="login.php" class="btn btn-primary">Click here to login</a>
+		</div>
+	{else}
+		<div class="alert alert-danger">
+			{$errorMessage|noescape}
+		</div>
+	{/if}
+{/block}

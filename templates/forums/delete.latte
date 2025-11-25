@@ -1,29 +1,37 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-<link rel="stylesheet" href="../style.css" type="text/css">
+	{if $isLoggedIn}
+		{if isset($success)}
+			<div class="alert alert-success">
+				<h4 class="alert-heading">Success!</h4>
+				<p>Message deleted successfully.</p>
+				<hr>
+				<a href="index.php" class="btn btn-primary">Go back to Forum</a>
+			</div>
+		{elseif $showForm}
+			<div class="card border-danger">
+				<div class="card-header bg-danger text-white">
+					<h5 class="mb-0">Delete Message</h5>
+				</div>
+				<div class="card-body">
+					<form action="delete.php" method="post">
+						<input type="hidden" name="msgid" value="{$messageID|escapeHtml}">
+						
+						<div class="alert alert-warning">
+							<strong>Warning!</strong> Are you sure you want to delete this message? This action cannot be undone.
+						</div>
 
-{if $isLoggedIn}
-    <center>
-    <table class='maintable'>
-        <tr class='headline'>
-            <td><center>Delete a Message</center></td>
-        </tr>
-        <tr class='mainrow'>
-            <td>
-                {if isset($success)}
-                    Message Deleted, please go back to the <A href='index.php'>Forum</a>
-                {elseif $showForm}
-                    <form action='delete.php' method='post'>
-                        <input type='hidden' name='msgid' value='{$messageID|escapeHtml}'>
-                        Are you sure you want to delete this message?<br>
-                        <input type='submit' name='submit' value='submit'>
-                    </form>
-                {/if}
-            </td>
-        </tr>
-    </table>
-{else}
-    You are not logged in.
-{/if}
+						<button type="submit" name="submit" class="btn btn-danger">Yes, Delete Message</button>
+						<a href="messages.php?ID={$messageID|escapeHtml}" class="btn btn-secondary">Cancel</a>
+					</form>
+				</div>
+			</div>
+		{/if}
+	{else}
+		<div class="alert alert-warning">
+			<h4>Not Logged In</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
 {/block}

@@ -16,12 +16,14 @@ try {
     $stmt = $db->query("SELECT * FROM km_forums ORDER BY forumname ASC");
     $forums = $stmt->fetchAll();
 
-    $latte->render(__DIR__ . '/../templates/admin/listforums.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/listforums.latte', [
         'forums' => $forums
     ]);
 } catch (PDOException $e) {
     error_log("Error fetching forums: " . $e->getMessage());
-    $latte->render(__DIR__ . '/../templates/admin/listforums.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/listforums.latte', [
         'error' => "Error loading forums. Please try again."
     ]);
 }

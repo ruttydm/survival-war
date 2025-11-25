@@ -29,7 +29,8 @@ if (isset($_POST['submit'])) {
         $message = "No forum ID specified.";
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/delete_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/delete_result.latte', [
         'message' => $message
     ]);
 } else {
@@ -37,11 +38,13 @@ if (isset($_POST['submit'])) {
     $ID = $_GET['ID'] ?? null;
 
     if ($ID) {
-        $latte->render(__DIR__ . '/../templates/admin/delete_confirm.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/delete_confirm.latte', [
             'ID' => $ID
         ]);
     } else {
-        $latte->render(__DIR__ . '/../templates/admin/delete_confirm.latte', [
+        $template = TemplateEngine::getInstance();
+        $template->display('admin/delete_confirm.latte', [
             'error' => "No forum ID specified."
         ]);
     }

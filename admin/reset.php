@@ -22,10 +22,12 @@ if (isset($_POST['submit'])) {
         $message = "Error resetting game. Please try again.";
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/reset_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/reset_result.latte', [
         'message' => $message
     ]);
 } else {
     // Show confirmation form
-    $latte->render(__DIR__ . '/../templates/admin/reset_confirm.latte');
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/reset_confirm.latte');
 }

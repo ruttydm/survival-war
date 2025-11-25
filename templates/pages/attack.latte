@@ -1,22 +1,31 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-      <table class='maintable'>
-      <tr class='headline'><td><center>Select player's land to attack</center></td></tr>
-      <tr class='mainrow'><td>
-		  <p>Type the ID# of the player whose land you wish to attack:</p><br>
-      <form action='' method='post'>
-      <input type='text' name='victimid' class='inline_text_inp' style='width:75px;'><br>
-      <input type='submit' name='submit' value='Attack' class='RedButton' style='width:93px'></form>
-      </td></tr></table><br><br>
+	<h2 class="mb-4">Attack Land</h2>
 
-{if $resultMessage}
-<center>
-<table class='maintable'>
-<tr class='headline'><td><center>result</center></td></tr>
-<tr class='mainrow'><td>
-{$resultMessage|noescape}
-</td></tr></table>
-</center>
-{/if}
+	<div class="card mb-4">
+		<div class="card-header">
+			Select Player's Land to Attack
+		</div>
+		<div class="card-body">
+			<p>Type the ID# of the player whose land you wish to attack:</p>
+			<form action="" method="post">
+				<div class="mb-3">
+					<input type="text" name="victimid" class="form-control" placeholder="Player ID" required>
+				</div>
+				<button type="submit" name="submit" class="btn btn-danger">Attack</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
 {/block}

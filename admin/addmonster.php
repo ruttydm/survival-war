@@ -48,10 +48,12 @@ if (isset($_POST['submit'])) {
         $message = "Error creating monster. Please try again.";
     }
 
-    $latte->render(__DIR__ . '/../templates/admin/addmonster_result.latte', [
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addmonster_result.latte', [
         'message' => $message
     ]);
 } else {
     // Show form
-    $latte->render(__DIR__ . '/../templates/admin/addmonster_form.latte');
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addmonster_form.latte');
 }

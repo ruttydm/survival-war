@@ -1,19 +1,38 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-{if $loggedIn}
-	<center>Players close to you in rank, your name is in red
-	<table class='maintable' border='1'><tr class='mainrow'>
-	<td>Player ID</td><td>Playername</td><td>Skillpts</td><td>Dead?</td></tr>
-	{foreach $players as $player}
-		{if $player['isCurrentPlayer']}
-			<tr><td><font color='red'>{$player['ID']}</font></td><td><font color='red'>{$player['playername']}</font></td><td><font color='red'>{$player['skillpts']}</font></td><td>{$player['dead']}</td></tr>
-		{else}
-			<tr><td>{$player['ID']}</td><td>{$player['playername']}</td><td>{$player['skillpts']}</td><td>{$player['dead']}</td></tr>
-		{/if}
-	{/foreach}
-	</table>
-{else}
-	Not Logged in
-{/if}
+	{if $loggedIn}
+		<h2 class="mb-4">Players Close to You</h2>
+		<p class="text-muted mb-4">Players close to you in rank. Your name is highlighted in red.</p>
+
+		<div class="card">
+			<div class="table-responsive">
+				<table class="table table-striped table-hover mb-0">
+					<thead>
+						<tr>
+							<th>Player ID</th>
+							<th>Playername</th>
+							<th>Skillpts</th>
+							<th>Dead?</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach $players as $player}
+							<tr {if $player['isCurrentPlayer']}class="table-danger"{/if}>
+								<td>{$player['ID']}</td>
+								<td>{$player['playername']}</td>
+								<td>{$player['skillpts']}</td>
+								<td>{$player['dead']}</td>
+							</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{else}
+		<div class="alert alert-danger">
+			<h4 class="alert-heading">Access Denied</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
 {/block}

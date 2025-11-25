@@ -1,27 +1,37 @@
 {layout '../layouts/main.latte'}
 
 {block content}
-<table class='maintable'><tr class='headline'><td><center>Buy army Training Pts</center></td></tr>
-<tr class='mainrow'><td>
-Each science point Cost 35 gold.<br>
-{if $hasLand}
-You have: {$currentScience|escapeHtml} pts ({$sciencePercent|escapeHtml} % more power.)
-{else}
-Science not applicable due to lack of land.
-{/if}
-<form action='' method='post'>
-<input type='text' name='scipts' size='6' class='inline_text_inp' style='width:75px;'><br>
-<input type='submit' name='submit' value='submit' class='RedButton' style='width:93px'></form>
-</td></tr></table>
-</td>
+	<h2 class="mb-4">Buy Science</h2>
 
-{if $resultMessage}
-<br><center>
-<table class='maintable'>
-<tr class='headline'><td><center>Buy Science</center></td></tr>
-<tr class='mainrow'><td>
-{$resultMessage|noescape}
-</td></tr></table>
-</center>
-{/if}
+	<div class="card mb-4">
+		<div class="card-header">
+			Purchase Army Training Points
+		</div>
+		<div class="card-body">
+			<p>Each science point costs 35 gold.</p>
+			{if $hasLand}
+				<p>You have: <strong>{$currentScience|escapeHtml}</strong> pts (<strong>{$sciencePercent|escapeHtml}%</strong> more power.)</p>
+			{else}
+				<p class="text-warning">Science not applicable due to lack of land.</p>
+			{/if}
+			<form action="" method="post">
+				<div class="mb-3">
+					<label for="scipts" class="form-label">Science Points to Purchase</label>
+					<input type="number" name="scipts" id="scipts" class="form-control" min="0">
+				</div>
+				<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
 {/block}
