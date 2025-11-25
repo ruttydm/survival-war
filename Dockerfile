@@ -15,6 +15,11 @@ RUN apt-get update && \
 # Copy application files
 COPY --chown=www-data:www-data . /var/www/html
 
+# Install Composer dependencies
+USER www-data
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+USER root
+
 # Setup migration script
 COPY migrate.sh /etc/entrypoint.d/99-migrate.sh
 RUN chmod +x /etc/entrypoint.d/99-migrate.sh

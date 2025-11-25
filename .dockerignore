@@ -43,8 +43,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Composer (if using)
-vendor/
-composer.lock
+# Note: We need composer.json and composer.lock for production builds
+# vendor/ will be generated during Docker build
+composer.phar
 
 # Docker
 docker-compose.yml
