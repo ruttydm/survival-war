@@ -1,22 +1,95 @@
-<?php 
-session_start();
-include 'up_html.php'; 
-?>
+<?php
+require_once 'includes/bootstrap.php';
 
-<html>
-<form method="post" action="reguser.php">
-Type Username Here: <input type="text" name="player" size="15" type="text" class='inline_text_inp' style='width:150px'><br>
-Type Password Here: <input type="password" name="password" size="15" type="text" class='inline_text_inp' style='width:150px'><br>
-Retype password: <input type="password" name="pass2" size="15" type="text" class='inline_text_inp' style='width:150px'><br>
-Type E-mail address: <input type="text" name="email" size="20" type="text" class='inline_text_inp' style='width:150px'><br>
-<input type="submit" value="submit" class="RedButton" style="width:80px" type="text" class='inline_text_inp' style='width:150px'>
-</form>
-<br>	
-<form method="post" action="login.php">
-<input type="submit" value="cancel" class="RedButton" style="width:80px" type="text" class='inline_text_inp' style='width:150px'>
-	
-</form>
-</html>
+use Nette\Forms\Form;
 
+$form = new Form;
 
-<?php include 'down_html.php'; ?>
+// Add form fields
+$form->addText('player', 'Type Username Here:')
+    ->setRequired('Please enter a username.')
+    ->addRule($form::MIN_LENGTH, 'Username must be at least %d characters', 5)
+    ->addRule($form::MAX_LENGTH, 'Username must be at most %d characters', 21)
+    ->setHtmlAttribute('class', 'inline_text_inp')
+    ->setHtmlAttribute('style', 'width:150px');
+
+$form->addPassword('password', 'Type Password Here:')
+    ->setRequired('Please enter a password.')
+    ->setHtmlAttribute('class', 'inline_text_inp')
+    ->setHtmlAttribute('style', 'width:150px');
+
+$form->addPassword('pass2', 'Retype password:')
+    ->setRequired('Please retype your password.')
+    ->addRule($form::EQUAL, 'Passwords do not match', $form['password'])
+    ->setHtmlAttribute('class', 'inline_text_inp')
+    ->setHtmlAttribute('style', 'width:150px');
+
+$form->addEmail('email', 'Type E-mail address:')
+    ->setRequired('Please enter your email.')
+    ->setHtmlAttribute('class', 'inline_text_inp')
+    ->setHtmlAttribute('style', 'width:150px');
+
+$form->addSubmit('send', 'submit')
+    ->setHtmlAttribute('class', 'RedButton')
+    ->setHtmlAttribute('style', 'width:80px');
+
+// Handle submission
+$form->onSuccess[] = function (Form $form, \stdClass $data) {
+    $db = Database::getInstance()->getExplorer();
+    
+    try {
+        // Check if player already exists
+        if ($db->table('km_users')->where('playername', $data->player)->fetch()) {
+            $form->addError('There is already a player with that name.');
+            return;
+        }
+        
+        // Check if email already exists
+        if ($db->table('km_users')->where('email', $data->email)->fetch()) {
+            $form->addError('There is already a player with that e-mail address.');
+            return;
+        }
+
+        // Generate keys and hash
+        $thekey = bin2hex(random_bytes(32));
+        $hashedPassword = password_hash($data->password, PASSWORD_ARGON2ID);
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+        // Insert new user
+        $db->table('km_users')->insert([
+            'playername' => $data->player,
+            'password' => $hashedPassword,
+            'email' => $data->email,
+            'validated' => '0',
+            'validkey' => $thekey,
+            'numturns' => '30',
+            'ip' => $ip,
+        ]);
+
+        // Generate activation URL
+        $path = defined('SITE_URL') ? SITE_URL : "http://rutgerx99.ninetynine.axc.nl";
+        $activationUrl = "$path/activate.php?player=" . urlencode($data->player) . "&keynode=$thekey";
+        
+        // TODO: Send activation email when email system is configured
+        // mail($data->email, $emailSubject, $emailBody, "From: " . (defined('MAIL_FROM') ? MAIL_FROM : 'noreply@survivalwar.com'));
+
+        // Show success page with activation link
+        $template = TemplateEngine::getInstance();
+        $template->display('pages/register.latte', [
+            'form' => $form,
+            'success' => true,
+            'activationUrl' => $activationUrl,
+            'playerName' => $data->player
+        ]);
+        return;
+
+    } catch (\Exception $e) {
+        $form->addError('An error occurred during registration. Please try again.');
+        // Log the error
+        Tracy\Debugger::log($e);
+    }
+};
+
+// Render template
+$template = TemplateEngine::getInstance();
+$template->display('pages/register.latte', ['form' => $form]);

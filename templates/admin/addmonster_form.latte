@@ -1,0 +1,19 @@
+{layout '../layouts/admin.latte'}
+{block content}
+In creating a monster, you will specify the monster's name, skill points if the monster has, and skill points gained if they monster is killed, only integers please, otherwise it will round down<br>
+<form action='addmonster.php' method='post'>
+Monster's name:<br>
+<input type='text' name='monstername' size='15'><br>
+Monster's skill points:<br>
+<input type='text' name='skillpts' size='6'><br>
+Image:<br>
+<input type='text' name='image'><br>
+Skill points gained by players if killed:<br>
+<input type='text' name='killpts' size='6'><br>
+Energy losed by if killed:<br>
+<input type='text' name='energycost' size='6'><br>
+Gold if killed:<br>
+<input type='text' name='goldpts' size='6'><br>
+<input type='submit' name='submit' value='Create Monster'>
+</form>
+{/block}

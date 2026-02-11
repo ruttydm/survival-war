@@ -213,3 +213,24 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+
+#############
+## PHP / Composer
+#############
+
+/vendor/
+composer.lock
+
+# Environment files
+.env
+.env.local
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# Backups
+*.backup
+*.bak.php
+temp/

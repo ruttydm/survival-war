@@ -1,0 +1,19 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $loggedIn}
+		{if $revived}
+			<div class="alert alert-success">
+				<h4 class="alert-heading">You have been revived!</h4>
+				<p>Welcome back to the world of survivors.</p>
+				<hr>
+				<a href="index.php" class="btn btn-primary">Go back to main page</a>
+			</div>
+		{/if}
+	{else}
+		<div class="alert alert-danger">
+			<h4 class="alert-heading">Access Denied</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
+{/block}

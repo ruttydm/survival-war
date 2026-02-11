@@ -1,0 +1,37 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Buy Science</h2>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			Purchase Army Training Points
+		</div>
+		<div class="card-body">
+			<p>Each science point costs 35 gold.</p>
+			{if $hasLand}
+				<p>You have: <strong>{$currentScience|escapeHtml}</strong> pts (<strong>{$sciencePercent|escapeHtml}%</strong> more power.)</p>
+			{else}
+				<p class="text-warning">Science not applicable due to lack of land.</p>
+			{/if}
+			<form action="" method="post">
+				<div class="mb-3">
+					<label for="scipts" class="form-label">Science Points to Purchase</label>
+					<input type="number" name="scipts" id="scipts" class="form-control" min="0">
+				</div>
+				<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
+{/block}

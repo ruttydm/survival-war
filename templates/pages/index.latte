@@ -1,0 +1,65 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $isDead}
+		<div class="alert alert-danger">
+			<p class="mb-3">You have been slain by <strong>{$killer|escapeHtml}</strong></p>
+			<form action="revive.php" method="post">
+				<input type="hidden" name="ID" value="{$userID|escapeHtml}">
+				<button type="submit" name="revives" class="btn btn-danger">Revive</button>
+			</form>
+		</div>
+	{else}
+		<h2 class="mb-4">Welcome, {$player|escapeHtml}!</h2>
+		<p class="lead">Welcome to the world of survivors!</p>
+
+		<div class="card mb-4">
+			<div class="card-header bg-primary text-white">
+				<h5 class="mb-0">Statistics</h5>
+			</div>
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Turns</span>
+					<strong>{$stats['numturns']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Skill Points</span>
+					<strong>{$stats['skillpts']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Honor</span>
+					<strong>{$stats['honor']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Gold</span>
+					<strong>{$stats['gold']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Land</span>
+					<strong>{$stats['land']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Offensive Army</span>
+					<strong>{$stats['offarmy']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Defensive Army</span>
+					<strong>{$stats['dffarmy']|escapeHtml}</strong>
+				</li>
+				<li class="list-group-item d-flex justify-content-between">
+					<span>Science</span>
+					<strong>{$stats['science']|escapeHtml}</strong>
+				</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<div class="card-header bg-secondary text-white">
+				<h5 class="mb-0">User Settings</h5>
+			</div>
+			<div class="card-body">
+				<a href="setpass.php" class="btn btn-outline-primary">Change Password</a>
+			</div>
+		</div>
+	{/if}
+{/block}

@@ -1,0 +1,31 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Challenge Player</h2>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			Select Player to Challenge
+		</div>
+		<div class="card-body">
+			<div class="alert alert-info">
+				<h5>How Challenges Work:</h5>
+				<p>If you <strong>win</strong>, you gain 1/10 of the other player's skillpoints and the other player dies and loses 1/3 of their skill points.</p>
+				<p>If you <strong>lose</strong>, the other player gains 1/10 of your skill points and you die and lose 1/3 of your skill points.</p>
+				<p class="mb-0"><em>Note: It makes no sense to challenge someone with less than 10 skillpoints.</em></p>
+			</div>
+			
+			<form method="post" action="">
+				<div class="mb-3">
+					<label for="playerID" class="form-label">Type the ID# of the player you wish to challenge:</label>
+					<input type="text" name="playerID" id="playerID" class="form-control" placeholder="Player ID" required>
+				</div>
+				<button type="submit" name="submit2" class="btn btn-warning">Challenge</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		{$resultMessage|noescape}
+	{/if}
+{/block}

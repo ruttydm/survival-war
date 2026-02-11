@@ -1,86 +1,131 @@
 <?php
-//killmonster admin main page, from here you can add and delete monsters
-include "connect.php";
-session_start();
-?>
-<?
-if (isset($_SESSION['isadmin'])) //if there is an administrative session
-  {
-     $ID=$_GET['ID'];
-     if(isset($ID)) //if submit has been pushed to delete user
-     {
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' bordercolor='white'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       $del="Delete from km_users where ID='$ID'";
-       mysql_query($del) or die('Could not delete user');
-       print "User Deleted";
-       print "</td></tr></table>";    
-       print "</center>";
- 
+/**
+ * User Management
+ *
+ * Admin interface to view, verify, and delete users
+ */
 
-     }
-     
-     else
-     {
+require_once __DIR__ . '/../includes/bootstrap.php';
 
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' cellspacing='20'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       print "All users listed in ABC order";
-       global $start;
-       if(!isset($start))
-       {
-          $start=0;
-       }
-       $userselect="SELECT * from km_users order by playername ASC limit $start, 20 ";
-       $userselect2=mysql_query($userselect) or die("Could not select user");
-       print "<table border='1' bordercolor='white' bgcolor='#e1e1e1'>";
-       print "<tr><td>Username</td><td>E-mail</td><td>Delete</td></tr>";
-       while($userselect3=mysql_fetch_array($userselect2))
-       {
-         print "<tr><td>$userselect3[playername]</td><td>$userselect3[email]</td><td><A href='manageuser.php?ID=$userselect3[ID]'>Delete</a></td></tr>";
-       }
-       print "</table>";       
-       print "</td></tr></table>";    
-       print "</center>";
-     }
-
-  $order="SELECT * from km_users";
-$order2=mysql_query($order);
-$d=0;
-$f=0;
-$g=1;
-
-
-
-
-print "Page: ";
-while($order3=mysql_fetch_array($order2))
-{
-if($f%20==0)
-  {
-    
-
-    print "<A href='manageuser.php?start=$d'>$g</a> ";
-    $g++;
-  }
-$d=$d+1;
-$f++;
-
+if (!Session::isAdminLoggedIn()) {
+    echo "Sorry, not logged in as administrator, please <a href='login.php'>Login</a>";
+    exit;
 }
-  }
-else //if not logged in as admin
-  {
-    print "Sorry, not logged in as administrator, please <A href='login.php'>Login</a>";
-  }
 
-?>
+$action = $_GET['action'] ?? 'list';
+$userId = $_GET['id'] ?? null;
+
+// Handle actions
+if ($action === 'verify' && $userId) {
+    // Verify user
+    try {
+        $stmt = $db->prepare("UPDATE km_users SET validated = '1' WHERE ID = :id");
+        $stmt->execute(['id' => $userId]);
+        
+        $_SESSION['admin_message'] = 'User verified successfully';
+        $_SESSION['admin_message_type'] = 'success';
+    } catch (PDOException $e) {
+        error_log("Error verifying user: " . $e->getMessage());
+        $_SESSION['admin_message'] = 'Error verifying user';
+        $_SESSION['admin_message_type'] = 'danger';
+    }
+    header('Location: manageuser.php');
+    exit;
+}
+
+if ($action === 'delete' && $userId) {
+    // Delete user
+    try {
+        $stmt = $db->prepare("DELETE FROM km_users WHERE ID = :id");
+        $stmt->execute(['id' => $userId]);
+        
+        $_SESSION['admin_message'] = 'User deleted successfully';
+        $_SESSION['admin_message_type'] = 'success';
+    } catch (PDOException $e) {
+        error_log("Error deleting user: " . $e->getMessage());
+        $_SESSION['admin_message'] = 'Error deleting user';
+        $_SESSION['admin_message_type'] = 'danger';
+    }
+    header('Location: manageuser.php');
+    exit;
+}
+
+// List users with filtering and pagination
+$filter = $_GET['filter'] ?? 'all';
+$search = $_GET['search'] ?? '';
+$start = (int)($_GET['start'] ?? 0);
+$perPage = 25;
+
+try {
+    // Build query based on filter
+    $whereClause = '';
+    $params = [];
+    
+    if ($filter === 'unverified') {
+        $whereClause = "WHERE validated = '0'";
+    } elseif ($filter === 'verified') {
+        $whereClause = "WHERE validated = '1'";
+    } elseif ($filter === 'dead') {
+        $whereClause = "WHERE dead = '1'";
+    } elseif ($filter === 'alive') {
+        $whereClause = "WHERE dead = '0'";
+    }
+    
+    if (!empty($search)) {
+        $whereClause .= ($whereClause ? ' AND ' : 'WHERE ');
+        $whereClause .= "(playername LIKE :search OR email LIKE :search)";
+        $params['search'] = "%$search%";
+    }
+    
+    // Get total count
+    $countStmt = $db->prepare("SELECT COUNT(*) as total FROM km_users $whereClause");
+    $countStmt->execute($params);
+    $total = $countStmt->fetch()['total'];
+    
+    // Get users
+    $stmt = $db->prepare("SELECT ID, playername, email, validated, dead, land, honor, lastaction, ip 
+                          FROM km_users $whereClause 
+                          ORDER BY playername ASC 
+                          LIMIT :start, :perPage");
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+    $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+    $stmt->execute();
+    $users = $stmt->fetchAll();
+    
+    // Calculate pagination
+    $totalPages = ceil($total / $perPage);
+    $currentPage = floor($start / $perPage) + 1;
+    
+    // Get admin message if exists
+    $message = $_SESSION['admin_message'] ?? null;
+    $messageType = $_SESSION['admin_message_type'] ?? 'info';
+    unset($_SESSION['admin_message'], $_SESSION['admin_message_type']);
+    
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/manageuser.latte', [
+        'users' => $users,
+        'total' => $total,
+        'currentPage' => $currentPage,
+        'totalPages' => $totalPages,
+        'perPage' => $perPage,
+        'start' => $start,
+        'filter' => $filter,
+        'search' => $search,
+        'message' => $message,
+        'messageType' => $messageType
+    ]);
+} catch (PDOException $e) {
+    error_log("Error fetching users: " . $e->getMessage());
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/manageuser.latte', [
+        'users' => [],
+        'total' => 0,
+        'message' => 'Error loading users. Please try again.',
+        'messageType' => 'danger',
+        'filter' => $filter,
+        'search' => $search
+    ]);
+}

@@ -1,112 +1,136 @@
 <?php
-//killmonster amin index
-include '../connect.php';
-session_start();
-include "../up_html.php";
-?>
-<center>
+/**
+ * Forum Topics Listing
+ *
+ * Displays topics in a specific forum
+ */
 
+require_once '../includes/bootstrap.php';
 
-<link rel="stylesheet" href="../style.css" type="text/css">
-<?php
-if (isset($_SESSION['player'])) 
-{
-  $playername=$_SESSION['player'];
-  $getuser="SELECT * from km_users where playername='$playername'";
-  $getuser2=mysql_query($getuser) or die("Could not get user info");
-  $getuser3=mysql_fetch_array($getuser2);
-  $thedate=date("U");
-  $checktime=$thedate-200;
-  $uprecords="Update km_users set lasttime='$thedate' where ID='$getuser3[ID]'";
-  mysql_query($uprecords) or die("Could not update records");
-  if($getuser3[tsgone]<$checktime)
-  {
-    $updatetime="Update km_users set tsgone='$thedate', oldtime='$getuser3[tsgone]' where ID='$getuser3[ID]'";
-    mysql_query($updatetime) or die("Could not update time");
-  }
-    $numtopicsperpage=15;
-    $forumID=$_GET['ID'];
-    print "<table border='0' width=90%>";
-    print "<tr><td><p align='left'><A href='../index.php'>Back to main game</a>-<A href='index.php'>Back to forum index</a></p></td><td colspan='3'><p align='right'><A href='post.php?forumid=$forumID'><b>New Thread</b></a></td></tr></table><br>";
-    print "<table class='maintable'>";
-    print "<tr class='headline'><td colspan='2'>Topic</td><td>Topic Starter</td><td>Replies</td><td>Last Post</td></tr>";
-    if(!isset($_GET['start']))
-    {
-       $start=0;
-     }
-     else
-     {
-       $start=$_GET['start'];
-     } 
-     $getmessages="SELECT * from km_messages a,km_users b where b.ID=a.posterid and a.parentid='0' and a.forumparent='$forumID' order by a.time DESC limit $start, 20";
-     $getmessages2=mysql_query($getmessages) or die(mysql_error());
-     while($getmessages3=mysql_fetch_array($getmessages2))
-       {
-         $getmessages3[subject]=str_replace("';","@",$getmessages3[subject]);
-         $getmessages3[subject]=str_replace('";','@',$getmessages3[subject]);
-         $getmessages3[subject]=strip_tags($getmessages3[subject]);
-         print "<tr class='mainrow'><td>";
-         if($getmessages3['time']>$getuser3['oldtime'])
-         {
-           print "<img src='../images/yesnewposts.gif' border='0'>";
-         }
-         else
-         {
-           print "<img src='../images/topic.gif' border='0'>";
-         }
+// Check if user is logged in
+if (!isset($_SESSION['player'])) {
+    $templateData = [
+        'isLoggedIn' => false,
+    ];
 
-         print "</td><td><A href='messages.php?forumID=$forumID&ID=$getmessages3[msgid]'>$getmessages3[subject]</a></td><td>$getmessages3[playername]</td><td>$getmessages3[numreplies]</td><td>$getmessages3[realtime]</td></tr>";
-       }
-       print "</table><br><br>";
-       print "<table border='0' width=90%>";
-       print "<tr><td class='regrow'>";
-       print "<p align='right'>";
-       $order="SELECT COUNT(*) from km_messages a,km_users b where b.ID=a.posterid and a.parentid='0' and a.forumparent='$forumID' order by time desc";
-       $order2=mysql_query($order);
-       $d=0;
-       $f=0;
-       $g=1;
-       $order3=mysql_result($order2,0);
-       $prev=$start-20;
-       $next=$start+20;
-       print " Page: ";
-       if($start>=20)
-       {
-         print "<A href='forum.php?ID=$forumID'>First</a>&nbsp&nbsp;&nbsp;";
-         print "<A href='forum.php?ID=$forumID&start=$prev'><<</a>&nbsp;";
-       }
-       while($f<$order3)
-       {
-         if($f%20==0)
-         {
-           if($f>=$start-3*20&&$f<=$start+7*20)
-           {
-             print "<A href='forum.php?ID=$forumID&start=$d'>$g</a> ";
-             $g++;
-           }
-         }
-         $d=$d+1;
-         $f++;
-       }
-       if($start<=$order3-$numtopicsperpage)
-       {
-         print "&nbsp;<A href='index.php?ID=$forumID&start=$next'>>></a>&nbsp;&nbsp;&nbsp;";
-         $last=$order3-20;
-         print "<A href='index.php?ID=$forumID&start=$last'>Last</a>";
-       }
-       print "</p></td></tr></table>";
-
-
+    $template = TemplateEngine::getInstance();
+    $template->display('forums/forum.latte', $templateData);
+    exit;
 }
-else
-{ 
-    print "<table class='maintable'>";
-    print "<tr class='headline'><td><center>Not logged in</center></td></tr>";
-    print "<tr class='mainrow'><td>You are not logged in, please <A href='../login.php'>Login</a>";
-    print "</td></tr></table>";
-  
 
+try {
+    $player = $_SESSION['player'];
+
+    // Get user stats
+    $stmt = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
+    $stmt->execute(['player' => $player]);
+    $userstats = $stmt->fetch();
+
+    if (!$userstats) {
+        die("Could not get user info");
+    }
+
+    // Update user activity
+    $thedate = time();
+    $checktime = $thedate - 200;
+
+    $stmt = $db->prepare("UPDATE km_users SET lasttime = :lasttime WHERE ID = :id");
+    $stmt->execute(['lasttime' => $thedate, 'id' => $userstats['ID']]);
+
+    if ($userstats['tsgone'] < $checktime) {
+        $stmt = $db->prepare("UPDATE km_users SET tsgone = :tsgone, oldtime = :oldtime WHERE ID = :id");
+        $stmt->execute([
+            'tsgone' => $thedate,
+            'oldtime' => $userstats['tsgone'],
+            'id' => $userstats['ID']
+        ]);
+    }
+
+    // Validate forum ID
+    $forumID = filter_var($_GET['ID'] ?? 0, FILTER_VALIDATE_INT);
+    if (!$forumID) {
+        die("Invalid forum ID");
+    }
+
+    // Pagination
+    $numtopicsperpage = 15;
+    $start = filter_var($_GET['start'] ?? 0, FILTER_VALIDATE_INT);
+    if ($start === false || $start < 0) {
+        $start = 0;
+    }
+
+    // Get topics
+    $stmt = $db->prepare("SELECT * FROM km_messages a, km_users b WHERE b.ID=a.posterid AND a.parentid='0' AND a.forumparent = :forumID ORDER BY a.time DESC LIMIT :start, 20");
+    $stmt->bindValue(':forumID', $forumID, PDO::PARAM_INT);
+    $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $topics = [];
+    while ($topic = $stmt->fetch()) {
+        $subject = $topic['subject'];
+        $subject = str_replace("';", "@", $subject);
+        $subject = str_replace('";', '@', $subject);
+        $subject = strip_tags($subject);
+
+        $topics[] = [
+            'msgid' => $topic['msgid'],
+            'subject' => $subject,
+            'playername' => $topic['playername'],
+            'numreplies' => $topic['numreplies'],
+            'realtime' => $topic['realtime'],
+            'hasNewPosts' => ($topic['time'] > $userstats['oldtime']),
+        ];
+    }
+
+    // Get total topic count for pagination
+    $stmt = $db->prepare("SELECT COUNT(*) FROM km_messages a, km_users b WHERE b.ID=a.posterid AND a.parentid='0' AND a.forumparent = :forumID ORDER BY time DESC");
+    $stmt->execute(['forumID' => $forumID]);
+    $totalTopics = $stmt->fetchColumn();
+
+    // Build pagination
+    $prev = $start - 20;
+    $next = $start + 20;
+    $pages = [];
+    $f = 0;
+    $d = 0;
+    $g = 1;
+
+    while ($f < $totalTopics) {
+        if ($f % 20 == 0) {
+            if ($f >= $start - 3 * 20 && $f <= $start + 7 * 20) {
+                $pages[] = [
+                    'number' => $g,
+                    'start' => $d,
+                ];
+                $g++;
+            }
+        }
+        $d = $d + 1;
+        $f++;
+    }
+
+    // Prepare template data
+    $templateData = [
+        'isLoggedIn' => true,
+        'forumID' => $forumID,
+        'topics' => $topics,
+        'pagination' => [
+            'start' => $start,
+            'prev' => $prev,
+            'next' => $next,
+            'pages' => $pages,
+            'totalTopics' => $totalTopics,
+            'showPrev' => ($start >= 20),
+            'showNext' => ($start <= $totalTopics - $numtopicsperpage),
+            'last' => $totalTopics - 20,
+        ],
+    ];
+
+    // Render template
+    $template = TemplateEngine::getInstance();
+    $template->display('forums/forum.latte', $templateData);
+
+} catch (PDOException $e) {
+    error_log("Error in forums/forum.php: " . $e->getMessage());
+    echo "<p>An error occurred. Please try again later.</p>";
 }
-include "../down_html.php";
-?>
-     

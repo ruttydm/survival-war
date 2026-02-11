@@ -1,0 +1,20 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Recover Password</h2>
+
+	{if $message}
+		<div class="alert alert-info">
+			{$message|noescape}
+		</div>
+	{else}
+		<form action="" method="post">
+			<div class="mb-3">
+				<label for="getpassword" class="form-label">Enter E-mail Address</label>
+				<input type="email" class="form-control" id="getpassword" name="getpassword" required>
+			</div>
+			<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+			<a href="login.php" class="btn btn-danger">Cancel</a>
+		</form>
+	{/if}
+{/block}

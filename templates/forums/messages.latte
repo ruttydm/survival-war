@@ -1,0 +1,88 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $isLoggedIn}
+		<div class="card mb-3">
+			<div class="card-header">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						<a href="../index.php" class="btn btn-sm btn-outline-secondary">Main Game</a>
+						<a href="index.php" class="btn btn-sm btn-outline-secondary">Forum Main</a>
+						<a href="forum.php?ID={$forumID|escapeHtml}" class="btn btn-sm btn-outline-secondary">{$forumName|escapeHtml}</a>
+					</div>
+					<div>
+						<a href="post.php?forumid={$forumID|escapeHtml}" class="btn btn-sm btn-primary">New Post</a>
+						<a href="reply.php?forumid={$forumID|escapeHtml}&ID={$messageID|escapeHtml}" class="btn btn-sm btn-success">Reply</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="card mb-3">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-2 border-end">
+						<strong>{$mainMessage['playername']|escapeHtml}</strong><br>
+						<small class="text-muted">
+							{if $mainMessage['isAdmin']}
+								Administrator (Lord and Master)
+							{else}
+								Member
+							{/if}
+						</small>
+					</div>
+					<div class="col-md-10">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<small class="text-muted">Last replied to on {$mainMessage['realtime']|escapeHtml}</small>
+							{if $mainMessage['canEdit']}
+								<div>
+									<a href="edit.php?ID={$mainMessage['msgid']|escapeHtml}" class="btn btn-sm btn-outline-primary">Edit</a>
+									<a href="delete.php?ID={$mainMessage['msgid']|escapeHtml}" class="btn btn-sm btn-outline-danger">Delete</a>
+								</div>
+							{/if}
+						</div>
+						<hr>
+						<div>{$mainMessage['message']|noescape}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{foreach $replies as $reply}
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-2 border-end">
+							<strong>{$reply['playername']|escapeHtml}</strong><br>
+							<small class="text-muted">
+								{if $reply['isAdmin']}
+									Administrator (Lord and Master)
+								{else}
+									Member
+								{/if}
+							</small>
+						</div>
+						<div class="col-md-10">
+							<div class="d-flex justify-content-between align-items-start mb-2">
+								<small class="text-muted">Posted on {$reply['realtime']|escapeHtml}</small>
+								{if $reply['canEdit']}
+									<div>
+										<a href="edit.php?ID={$reply['msgid']|escapeHtml}" class="btn btn-sm btn-outline-primary">Edit</a>
+										<a href="delete.php?ID={$reply['msgid']|escapeHtml}" class="btn btn-sm btn-outline-danger">Delete</a>
+									</div>
+								{/if}
+							</div>
+							<hr>
+							<div>{$reply['message']|noescape}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/foreach}
+	{else}
+		<div class="alert alert-warning">
+			<h4>Not Logged In</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
+{/block}

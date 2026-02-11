@@ -1,86 +1,59 @@
 <?php
-//killmonster admin main page, from here you can add and delete monsters
-include "connect.php";
-session_start();
-?>
-<?
+/**
+ * Add Monster
+ *
+ * Admin interface to create new monsters
+ */
 
-if (isset($_SESSION['isadmin'])) //if there is an administrative session
-  {
+require_once __DIR__ . '/../includes/bootstrap.php';
 
-     if(isset($_POST['submit'])) //if submit has been pushed to create a monster
-     {
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' cellspacing='20'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       $image=$_POST['image'];
-       $monstername=$_POST['monstername'];
-	   $energycost=$_POST['energycost'];
-       $skillpts=$_POST['skillpts'];
-       $killpts=$_POST['killpts'];
-       $gold=$_POST['goldpts'];
-       $checkname="SELECT * from km_monsters where name='$monstername'";
-       $checkname2=mysql_query($checkname) or die("Could not query monsters");
-       while($checkname3=mysql_fetch_array($checkname2))
-       {
-         $themonster=$checkname3[name]; //set a variable if there is already a monster of the same name
-       }
-       if($themonster) 
-       {
-         print "Sorry there is already a monster of that name";
-       }
-       else //if there is no such monster, then create one
-       {
-        $createmonster="INSERT into km_monsters (name, skill, pointsifkilled, goldworth, energycost, image) VALUES 
-        ('$monstername', '$skillpts', '$killpts','$gold', '$energycost' '$image')";
-        
-        mysql_query($createmonster) or die("Could not create monster");
-        print "Monster created successfully<br>";
-       }
- 
-       print "</td></tr></table>";    
-       print "</center>";
- 
+if (!Session::isAdminLoggedIn()) {
+    echo "Sorry, not logged in as administrator, please <a href='login.php'>Login</a>";
+    exit;
+}
 
-     }
-     
-     else
-     {
+if (isset($_POST['submit'])) {
+    // Process form submission
+    $image = Validator::sanitizeString($_POST['image'] ?? '', 255);
+    $monstername = Validator::sanitizeString($_POST['monstername'] ?? '', 100);
+    $energycost = (int)($_POST['energycost'] ?? 0);
+    $skillpts = (int)($_POST['skillpts'] ?? 0);
+    $killpts = (int)($_POST['killpts'] ?? 0);
+    $gold = (int)($_POST['goldpts'] ?? 0);
 
-       print "<center><h3>Kill Monster Admin</h3></center><br>";
-       print "<center>";
-       print "<table border='0' width='70%' cellspacing='20'>";
-       print "<tr><td width='25%' valign='top'>";
-       include 'left.php';
-       print "</td>";
-       print "<td valign='top' width='75%'>";
-       print "In creating a monster, you will specify the monster's name, skill points if the monster has, and skill points gained if they monster is killed, only integers please, otherwise it will round down<br>";
-       print "<form action='addmonster.php' method='post'>";
-       print "Monster's name:<br>";
-       print "<input type='text' name='monstername' size='15'><br>";
-       print "Monster's skill points:<br>";
-       print "<input type='text' name='skillpts' size='6'><br>";
-       print "Image:<br>";
-       print "<input type='text' name='image'><br>";
-       print "Skill points gained by players if killed:<br>";
-       print "<input type='text' name='killpts' size='6'><br>";
-       print "Energy losed by if killed:<br>";
-       print "<input type='text' name='energycost' size='6'><br>";		 
-       print "Gold if killed:<br>";
-       print "<input type='text' name='goldpts' size='6'><br>";
-       print "<input type='submit' name='submit' value='Create Monster'>";
-       print "</form>";
-       print "</td></tr></table>";    
-       print "</center>";
-     }
-  }
-else //if not logged in as admin
-  {
-    print "Sorry, not logged in as administrator, please <A href='login.php'>Login</a>";
-  }
+    try {
+        // Check if monster already exists
+        $stmt = $db->prepare("SELECT * FROM km_monsters WHERE name = :name");
+        $stmt->execute(['name' => $monstername]);
+        $existingMonster = $stmt->fetch();
 
-?>
+        if ($existingMonster) {
+            $message = "Sorry there is already a monster of that name";
+        } else {
+            // Create new monster (fixed SQL syntax - added missing comma)
+            $stmt = $db->prepare("INSERT INTO km_monsters (name, skill, pointsifkilled, goldworth, energycost, image)
+                                  VALUES (:name, :skill, :pointsifkilled, :goldworth, :energycost, :image)");
+            $stmt->execute([
+                'name' => $monstername,
+                'skill' => $skillpts,
+                'pointsifkilled' => $killpts,
+                'goldworth' => $gold,
+                'energycost' => $energycost,
+                'image' => $image
+            ]);
+            $message = "Monster created successfully<br>";
+        }
+    } catch (PDOException $e) {
+        error_log("Error creating monster: " . $e->getMessage());
+        $message = "Error creating monster. Please try again.";
+    }
+
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addmonster_result.latte', [
+        'message' => $message
+    ]);
+} else {
+    // Show form
+    $template = TemplateEngine::getInstance();
+    $template->display('admin/addmonster_form.latte');
+}

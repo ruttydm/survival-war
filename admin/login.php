@@ -1,10 +1,11 @@
-<html>
-<form method="POST" action="authenticate.php">
-Type Username Here: <input type="text" name="isadmin" size="15"><br>
-Type Password Here: <input type="password" name="password" size="15" mask="x"><br>
-<input type="submit" value="submit" name="submit">
+<?php
+/**
+ * Admin Login
+ *
+ * Login page for administrators
+ */
 
+require_once __DIR__ . '/../includes/bootstrap.php';
 
-
-</form>
-</html>
+$template = TemplateEngine::getInstance();
+$template->display('admin/login.latte');

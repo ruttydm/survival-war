@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: survival-war-app
+    restart: unless-stopped
+    # Ports managed by Coolify/Traefik. Use docker-compose.override.yml for local dev.
+    environment:
+      # PHP Configuration
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_OPCACHE_REVALIDATE_FREQ: "0"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "0"
+      PHP_OPCACHE_MAX_ACCELERATED_FILES: "10000"
+      PHP_OPCACHE_MEMORY_CONSUMPTION: "192"
+      PHP_OPCACHE_MAX_WASTED_PERCENTAGE: "10"
+
+      # Database Configuration
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_NAME: ${DB_NAME:-survival_war}
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-changeme}
+
+      # Site Configuration
+      SITE_URL: ${SERVICE_FQDN_APP_8080:-http://localhost:8080}
+      SITE_NAME: ${SITE_NAME:-Survival War}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+
+      # Security
+      SESSION_LIFETIME: ${SESSION_LIFETIME:-7200}
+      PASSWORD_MIN_LENGTH: ${PASSWORD_MIN_LENGTH:-8}
+
+      # Debug/Development
+      DEBUG_MODE: ${DEBUG_MODE:-false}
+      DISPLAY_ERRORS: ${DISPLAY_ERRORS:-false}
+      LOG_ERRORS: ${LOG_ERRORS:-true}
+    volumes:
+      - ./logs:/var/www/html/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - survival-war-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/login.php" ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  mysql:
+    image: mysql:9.2
+    container_name: survival-war-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS:-changeme}
+      MYSQL_DATABASE: ${DB_NAME:-survival_war}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - survival-war-network
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root $$([ -n \"$$MYSQL_ROOT_PASSWORD\" ] && echo \"-p$$MYSQL_ROOT_PASSWORD\" || echo \"\") || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  survival-war-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

@@ -1,0 +1,11 @@
+{layout '../layouts/admin.latte'}
+{block content}
+{if isset($error)}
+{$error|escapeHtml}
+{else}
+<form action='delete.php' method='post'>
+<input type='hidden' name='ID' value='{$ID|escapeHtml}'>
+Are you sure you want to delete this forum?<br>
+<input type='submit' name='submit' value='Delete'></form>
+{/if}
+{/block}

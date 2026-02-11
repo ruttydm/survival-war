@@ -1,61 +1,79 @@
 <?php
-//killmonster amin index
-include '../connect.php';
-session_start();
-include "../up_html.php";
-?>
-<center>
+/**
+ * Forum Listing
+ *
+ * Displays all available forums with topics and post counts
+ */
 
+require_once '../includes/bootstrap.php';
 
-<link rel="stylesheet" href="../style.css" type="text/css">
-<?php
-if (isset($_SESSION['player'])) 
-{
-  $playername=$_SESSION['player'];
-  $getuser="SELECT * from km_users where playername='$playername'";
-  $getuser2=mysql_query($getuser) or die("Could not get user info");
-  $getuser3=mysql_fetch_array($getuser2);
-  $thedate=date("U");
-  $checktime=$thedate-200;
-  $uprecords="Update km_users set lasttime='$thedate' where ID='$getuser3[ID]'";
-  mysql_query($uprecords) or die("Could not update records");
-  if($getuser3[tsgone]<$checktime)
-  {
-    $updatetime="Update km_users set tsgone='$thedate', oldtime='$getuser3[tsgone]' where ID='$getuser3[ID]'";
-    mysql_query($updatetime) or die("Could not update time");
-  }
-  print "<center><A href='../index.php'>Back to Main game</a></center><br>";
-  print "<center><table class='maintable'><tr class='headline'><td colspan='2' width=75%>Forum name</td><td>Topics</td><td>Posts</td><td>Last Post</td></tr>";
-  $getforums="SELECT * from km_forums order by forumorder ASC";
-  $getforums2=mysql_query($getforums) or die("COuld not get forums");
-  while($getforums3=mysql_fetch_array($getforums2))
-  {
-     print "<tr class='mainrow'><td width=3%>";
+// Check if user is logged in
+if (!isset($_SESSION['player'])) {
+    $templateData = [
+        'isLoggedIn' => false,
+    ];
 
-     if($getforums3['realtimelastpost']>$getuser3['oldtime'])
-     {
-       print "<img src='../images/postforum.jpg' border='0'>";
-     }
-     else
-     {
-       print "<img src='../images/postforum.gif' border='0'>";
-     }
-
-     print "</td><td><A href='forum.php?ID=$getforums3[forumID]'>$getforums3[forumname]</a><br>$getforums3[descrip]</td><td>$getforums3[numtopics]</td><td>$getforums3[numposts]</td><td>$getforums3[timelastpost]<br>by<b>$getforums3[lastposter]</b></td></tr>";
-  }
-  print "</table>";
-
-
+    $template = TemplateEngine::getInstance();
+    $template->display('forums/index.latte', $templateData);
+    exit;
 }
-else
-{ 
-    print "<table class='maintable'>";
-    print "<tr class='headline'><td><center>Not logged in</center></td></tr>";
-    print "<tr class='mainrow'><td>You are not logged in, please <A href='../login.php'>Login</a>";
-    print "</td></tr></table>";
-  
 
+try {
+    $player = $_SESSION['player'];
+
+    // Get user stats
+    $stmt = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
+    $stmt->execute(['player' => $player]);
+    $userstats = $stmt->fetch();
+
+    if (!$userstats) {
+        die("Could not get user info");
+    }
+
+    // Update user activity
+    $thedate = time();
+    $checktime = $thedate - 200;
+
+    $stmt = $db->prepare("UPDATE km_users SET lasttime = :lasttime WHERE ID = :id");
+    $stmt->execute(['lasttime' => $thedate, 'id' => $userstats['ID']]);
+
+    if ($userstats['tsgone'] < $checktime) {
+        $stmt = $db->prepare("UPDATE km_users SET tsgone = :tsgone, oldtime = :oldtime WHERE ID = :id");
+        $stmt->execute([
+            'tsgone' => $thedate,
+            'oldtime' => $userstats['tsgone'],
+            'id' => $userstats['ID']
+        ]);
+    }
+
+    // Get all forums
+    $stmt = $db->query("SELECT * FROM km_forums ORDER BY forumorder ASC");
+    $forums = [];
+
+    while ($forum = $stmt->fetch()) {
+        $forums[] = [
+            'forumID' => $forum['forumID'],
+            'forumname' => $forum['forumname'],
+            'descrip' => $forum['descrip'],
+            'numtopics' => $forum['numtopics'],
+            'numposts' => $forum['numposts'],
+            'lastposter' => $forum['lastposter'],
+            'timelastpost' => $forum['timelastpost'],
+            'hasNewPosts' => ($forum['realtimelastpost'] > $userstats['oldtime']),
+        ];
+    }
+
+    // Prepare template data
+    $templateData = [
+        'isLoggedIn' => true,
+        'forums' => $forums,
+    ];
+
+    // Render template
+    $template = TemplateEngine::getInstance();
+    $template->display('forums/index.latte', $templateData);
+
+} catch (PDOException $e) {
+    error_log("Error in forums/index.php: " . $e->getMessage());
+    echo "<p>An error occurred. Please try again later.</p>";
 }
-include "../down_html.php";
-?>
-     

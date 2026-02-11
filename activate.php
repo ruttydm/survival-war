@@ -1,29 +1,91 @@
 <?php
-include "connect.php";
-print "<link rel='stylesheet' href='style.css' type='text/css'>";
-$username=$_GET['player'];
-$password=$_GET['password'];
-$keynode=$_GET['keynode'];
-$getuserkeys="Select * from km_users where playername='$username' and password='$password' and validkey='$keynode'";
-$getuserkeys2=mysql_query($getuserkeys) or die(mysql_error());
-$getuserkeys3=mysql_fetch_array($getuserkeys2);
-if(!$getuserkeys3)
-{
-  print "<table class='maintable'>";
-  print "<tr class='headline'><td><center>Registering...</center></td></tr>";
-  print "<tr class='forumrow'><td><center>";
-  print "No such user.";
-  print "</td></tr></table>";
+/**
+ * User Account Activation
+ *
+ * Activates user account via email activation link
+ */
+
+require_once 'includes/bootstrap.php';
+
+$templateData = [
+    'success' => false,
+    'errorMessage' => ''
+];
+
+try {
+    // Sanitize inputs
+    $username = Validator::sanitizeString($_GET['player'] ?? '', 50);
+    $keynode = Validator::sanitizeString($_GET['keynode'] ?? '', 64);
+    $password = $_GET['password'] ?? ''; // Legacy parameter, optional
+
+    if (empty($username) || empty($keynode)) {
+        $templateData['errorMessage'] = "Invalid activation link.";
+    } else {
+        // Build query based on available parameters
+        if (!empty($password)) {
+            // Legacy activation link with password
+            $stmt = $db->prepare("
+                SELECT * FROM km_users
+                WHERE playername = :username
+                AND validkey = :keynode
+            ");
+            $stmt->execute([
+                'username' => $username,
+                'keynode' => $keynode
+            ]);
+            $user = $stmt->fetch();
+
+            // Verify password for legacy links
+            if ($user) {
+                $passwordValid = false;
+
+                // Check if password is MD5 (legacy) or modern hash
+                if (strlen($user['password']) === 32 && ctype_xdigit($user['password'])) {
+                    // Legacy MD5 password
+                    if (md5($password) === $user['password']) {
+                        $passwordValid = true;
+                    }
+                } else {
+                    // Modern password hash
+                    if (password_verify($password, $user['password'])) {
+                        $passwordValid = true;
+                    }
+                }
+
+                if (!$passwordValid) {
+                    $user = null; // Invalidate if password doesn't match
+                }
+            }
+        } else {
+            // Modern activation link (only username and keynode)
+            $stmt = $db->prepare("
+                SELECT * FROM km_users
+                WHERE playername = :username
+                AND validkey = :keynode
+            ");
+            $stmt->execute([
+                'username' => $username,
+                'keynode' => $keynode
+            ]);
+            $user = $stmt->fetch();
+        }
+
+        if (!$user) {
+            $templateData['errorMessage'] = "No such user or invalid activation link.";
+        } else {
+            // Activate the account
+            $updateStmt = $db->prepare("UPDATE km_users SET validated = '1' WHERE playername = :username");
+            $updateStmt->execute(['username' => $username]);
+
+            $templateData['success'] = true;
+        }
+    }
+} catch (PDOException $e) {
+    error_log("Activation error: " . $e->getMessage());
+    $templateData['errorMessage'] = "An error occurred during activation. Please try again or contact support.";
 }
-else
-{
-  print "<table class='maintable'>";
-  print "<tr class='headline'><td><center>Registering...</center></td></tr>";
-  print "<tr class='forumrow'><td><center>";
-  $update="Update km_users set validated='1' where playername='$username'";
-  mysql_query($update) or die("Could not activate");
-  print "Account activated";
-  print "</center></td></tr></table>";
-}
+
+// Render template
+$template = TemplateEngine::getInstance();
+$template->display('pages/activate.latte', $templateData);
 ?>
-  

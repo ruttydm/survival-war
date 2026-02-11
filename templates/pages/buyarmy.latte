@@ -1,0 +1,36 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Buy Army</h2>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			Purchase Troops
+		</div>
+		<div class="card-body">
+			<p>Each troop costs 75 gold and each acre can support a max of ten troops.</p>
+			<form method="post" action="">
+				<div class="mb-3">
+					<label for="off" class="form-label">Offensive Units</label>
+					<input type="number" name="off" id="off" class="form-control" min="0">
+				</div>
+				<div class="mb-3">
+					<label for="dff" class="form-label">Defensive Units</label>
+					<input type="number" name="dff" id="dff" class="form-control" min="0">
+				</div>
+				<button type="submit" name="submit" class="btn btn-primary">Buy Army</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
+{/block}

@@ -1,0 +1,33 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $loggedIn}
+		{if $message}
+			<div class="alert alert-success mb-4">
+				{$message|noescape}
+			</div>
+		{elseif $showForm}
+			<h2 class="mb-4">Change Password</h2>
+			
+			<div class="card">
+				<div class="card-body">
+					<form action="" method="post">
+						<div class="mb-3">
+							<label for="password" class="form-label">Type New Password</label>
+							<input type="password" name="password" id="password" class="form-control" minlength="6" required>
+							<div class="form-text">Password must be at least 6 characters long</div>
+						</div>
+						<button type="submit" name="submit" class="btn btn-primary">Change Password</button>
+					</form>
+				</div>
+			</div>
+		{/if}
+	{else}
+		<div class="alert alert-danger">
+			<h4 class="alert-heading">Access Denied</h4>
+			<p>You are not logged in.</p>
+			<hr>
+			<a href="login.php" class="btn btn-primary">Click here to login</a>
+		</div>
+	{/if}
+{/block}

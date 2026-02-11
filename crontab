@@ -1,0 +1,3 @@
+# Survival War Cron Jobs
+# Run turn regeneration every hour
+0 * * * * www-data /usr/local/bin/php /var/www/html/cron/cronjob.php >> /var/www/html/logs/cron.log 2>&1

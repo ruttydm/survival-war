@@ -1,0 +1,18 @@
+# ⚠️ IMPORTANT: For local development only
+
+# This docker-compose.override.yml file adds port mappings for local development
+# Coolify ignores this file and manages ports through its proxy
+
+version: '3.8'
+
+services:
+  app:
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - .:/var/www/html
+
+  mysql:
+    ports:
+      - "3306:3306"

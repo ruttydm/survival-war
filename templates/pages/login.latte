@@ -1,0 +1,30 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $loginError}
+		<div class="alert alert-danger" role="alert">
+			{$loginError|escapeHtml}
+		</div>
+	{/if}
+
+	<h2 class="mb-4">Login</h2>
+
+	<form method="POST" action="authenticate.php">
+		<div class="mb-3">
+			<label for="player" class="form-label">Username</label>
+			<input type="text" class="form-control" id="player" name="player" placeholder="Username" required>
+		</div>
+		<div class="mb-3">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+		</div>
+		<button type="submit" class="btn btn-primary" name="submit">Login</button>
+	</form>
+
+	<hr class="my-4">
+
+	<div class="d-grid gap-2">
+		<a href="getpass.php" class="btn btn-outline-secondary">Get Password</a>
+		<a href="register.php" class="btn btn-success">Register</a>
+	</div>
+{/block}

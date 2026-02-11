@@ -1,0 +1,32 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Buy Land</h2>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			Purchase Land
+		</div>
+		<div class="card-body">
+			<p>Land costs $500 per acre (very expensive).</p>
+			<form action="" method="post">
+				<div class="mb-3">
+					<label for="landacres" class="form-label">Acres to Buy</label>
+					<input type="number" name="landacres" id="landacres" class="form-control" placeholder="Acres to buy" min="0" required>
+				</div>
+				<button type="submit" name="submit" class="btn btn-primary">Buy</button>
+			</form>
+		</div>
+	</div>
+
+	{if $resultMessage}
+		<div class="card">
+			<div class="card-header">
+				Result
+			</div>
+			<div class="card-body">
+				{$resultMessage|noescape}
+			</div>
+		</div>
+	{/if}
+{/block}

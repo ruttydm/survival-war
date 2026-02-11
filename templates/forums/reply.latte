@@ -1,0 +1,51 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $isLoggedIn}
+		{if isset($error)}
+			<div class="alert alert-danger">
+				{$error|escapeHtml}
+			</div>
+		{elseif isset($success)}
+			<div class="alert alert-success">
+				<h4 class="alert-heading">Success!</h4>
+				<p>Thanks for your reply, redirecting to thread...</p>
+				<META HTTP-EQUIV='Refresh' Content='2; URL={$redirectUrl|noescape}'>
+			</div>
+		{elseif $showForm}
+			<div class="card">
+				<div class="card-header">
+					<h5 class="mb-0">Post a Reply</h5>
+				</div>
+				<div class="card-body">
+					<form action="reply.php?ID={$messageID|escapeHtml}" method="post">
+						<input type="hidden" name="fid" value="{$forumid|escapeHtml}">
+						
+						<div class="mb-3">
+							<label class="form-label">Name</label>
+							<input type="text" class="form-control" value="{$playername|escapeHtml}" disabled>
+						</div>
+
+						<div class="mb-3">
+							<label for="subject" class="form-label">Subject</label>
+							<input type="text" class="form-control" id="subject" name="subject" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="themessage" class="form-label">Message</label>
+							<textarea class="form-control" id="themessage" name="themessage" rows="10" required></textarea>
+						</div>
+
+						<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+						<a href="messages.php?ID={$messageID|escapeHtml}" class="btn btn-secondary">Cancel</a>
+					</form>
+				</div>
+			</div>
+		{/if}
+	{else}
+		<div class="alert alert-warning">
+			<h4>Not Logged In</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
+{/block}

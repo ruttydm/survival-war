@@ -1,0 +1,38 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $loggedIn}
+		<h2 class="mb-4">Players Close to You</h2>
+		<p class="text-muted mb-4">Players close to you in rank. Your name is highlighted in red.</p>
+
+		<div class="card">
+			<div class="table-responsive">
+				<table class="table table-striped table-hover mb-0">
+					<thead>
+						<tr>
+							<th>Player ID</th>
+							<th>Playername</th>
+							<th>Skillpts</th>
+							<th>Dead?</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach $players as $player}
+							<tr {if $player['isCurrentPlayer']}class="table-danger"{/if}>
+								<td>{$player['ID']}</td>
+								<td>{$player['playername']}</td>
+								<td>{$player['skillpts']}</td>
+								<td>{$player['dead']}</td>
+							</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{else}
+		<div class="alert alert-danger">
+			<h4 class="alert-heading">Access Denied</h4>
+			<p>You are not logged in.</p>
+		</div>
+	{/if}
+{/block}

@@ -1,43 +1,62 @@
 <?php
 
-//start sessionj
-session_start();
+require_once 'includes/bootstrap.php';
 
-//include html
-include 'up_html.php';
-
-//if user is online
-if(isset($_SESSION['player'])){
-
-     //user stats
-     $player=$_SESSION['player'];
-     $userstats="SELECT * from km_users where playername='$player'";
-     $userstats2=mysql_query($userstats) or die("Could not get user stats");
-     $userstats3=mysql_fetch_array($userstats2);
-	
-	  //if there are attacks
-      if($userstats3[numberattck]>0)
-      {
-        print "You have survived $userstats3[numberattck] attacks since your last login.<br><br>";
-        $resets="update km_users set numberattck='0' where playername='$player'";
-        mysql_query($resets) or die("could not query");
-      }
-      
-      //view table
-      print "</td></tr></table><br><br>";
-      $getbattlerecords="SELECT * from km_battlerecords";
-      $getbattlerecords2=mysql_query($getbattlerecords) or die("Could not get battlerecords");
-      print "<table class='maintable'>";
-      print "<tr class='headline'><td colspan='4'><center>Battle records</center></td></tr>";
-      print "<tr class='mainrow'><td>Attacker ID</td><td>Attacker name</td><td>Result</td><td>Land lost</td></tr>";
-      while($getbattlerecords3=mysql_fetch_array($getbattlerecords2))
-      {
-         print "<tr class='mainrow'><td>$getbattlerecords3[attid]</td><td>$getbattlerecords3[attname]</td><td>$getbattlerecords3[result]</td><td>$getbattlerecords3[landlost]</td></tr>";
-      }
-      print "</table><br><br>";	
+// Check authentication
+if (!isset($_SESSION['player'])) {
+    header('Location: login.php');
+    exit;
 }
 
-//include html
-include 'down_html.php'
+$attackMessage = null;
+$battleRecords = [];
 
+try {
+    $player_name = $_SESSION['player'];
+
+    // Fetch user stats
+    $statement = $db->prepare("SELECT * FROM km_users WHERE playername = :player");
+    $statement->execute(['player' => $player_name]);
+    $user_stats = $statement->fetch();
+
+    if (!$user_stats) {
+        die("Could not get user stats");
+    }
+
+    // Handle attack notifications
+    $attack_count = (int)$user_stats['numberattck'];
+    if ($attack_count > 0) {
+        $attackMessage = "You have survived {$attack_count} attacks since your last login.";
+
+        // Reset attack counter
+        $reset_statement = $db->prepare("UPDATE km_users SET numberattck = '0' WHERE playername = :player");
+        $reset_statement->execute(['player' => $player_name]);
+    }
+
+    // Fetch battle records
+    $records_query = $db->query("SELECT * FROM km_battlerecords");
+    while ($record = $records_query->fetch()) {
+        $battleRecords[] = [
+            'attid' => $record['attid'],
+            'attname' => $record['attname'],
+            'result' => $record['result'],
+            'landlost' => $record['landlost'],
+        ];
+    }
+} catch (PDOException $e) {
+    ErrorHandler::handleException($e);
+    die("A database error occurred. Please try again later.");
+} catch (Exception $e) {
+    ErrorHandler::handleException($e);
+    die("An error occurred. Please try again later.");
+}
+
+// Prepare template data
+$templateData = [
+    'attackMessage' => $attackMessage,
+    'battleRecords' => $battleRecords,
+];
+
+$template = TemplateEngine::getInstance();
+$template->display('pages/logs.latte', $templateData);
 ?>

@@ -1,0 +1,9 @@
+{layout '../layouts/admin.latte'}
+{block content}
+<form action='addforum.php' method='post'>
+Type name of forum to add:<br>
+<input type='text' name='forumname' size='20'><br>
+Enter a forum description:<br>
+<textarea name='forumdesc' cols='40' rows='5'></textarea><br>
+<input type='submit' name='submit' value='submit'></form>
+{/block}

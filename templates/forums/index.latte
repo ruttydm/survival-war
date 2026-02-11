@@ -1,0 +1,61 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	{if $isLoggedIn}
+		<div class="mb-3">
+			<a href="../index.php" class="btn btn-primary">Back to Main Game</a>
+		</div>
+
+		<div class="card">
+			<div class="card-header">
+				<h5 class="mb-0">Forums</h5>
+			</div>
+			<div class="table-responsive">
+				<table class="table table-hover mb-0">
+					<thead class="table-light">
+						<tr>
+							<th style="width: 40px;"></th>
+							<th>Forum Name</th>
+							<th class="text-center" style="width: 100px;">Topics</th>
+							<th class="text-center" style="width: 100px;">Posts</th>
+							<th style="width: 200px;">Last Post</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach $forums as $forum}
+						<tr>
+							<td class="text-center">
+								{if $forum['hasNewPosts']}
+									<img src="../images/postforum.jpg" height="20" alt="New posts">
+								{else}
+									<img src="../images/postforum.gif" height="20" alt="No new posts">
+								{/if}
+							</td>
+							<td>
+								<a href="forum.php?ID={$forum['forumID']|escapeHtml}" class="text-decoration-none fw-bold">{$forum['forumname']|escapeHtml}</a>
+								<br>
+								<small class="text-muted">{$forum['descrip']|escapeHtml}</small>
+							</td>
+							<td class="text-center">{$forum['numtopics']|escapeHtml}</td>
+							<td class="text-center">{$forum['numposts']|escapeHtml}</td>
+							<td>
+								<small>
+									{$forum['timelastpost']|escapeHtml}<br>
+									by <strong>{$forum['lastposter']|escapeHtml}</strong>
+								</small>
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{else}
+		<div class="alert alert-warning">
+			<h4 class="alert-heading">Not Logged In</h4>
+			<p>You are not logged in.</p>
+			<hr>
+			<a href="../login.php" class="btn btn-primary">Login</a>
+		</div>
+	{/if}
+{/block}

@@ -1,0 +1,18 @@
+{layout '../layouts/main.latte'}
+
+{block content}
+	<h2 class="mb-4">Account Activation</h2>
+
+	{if $success}
+		<div class="alert alert-success">
+			<h4 class="alert-heading">Success!</h4>
+			<p>Account activated successfully!</p>
+			<hr>
+			<a href="login.php" class="btn btn-primary">Click here to login</a>
+		</div>
+	{else}
+		<div class="alert alert-danger">
+			{$errorMessage|noescape}
+		</div>
+	{/if}
+{/block}
